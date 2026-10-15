@@ -1,0 +1,67 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "@fontsource-variable/inter";
+
+@theme {
+  --font-sans: "Inter", sans-serif;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+}
+
+:root {
+  /* Background */
+  --site-bg: #131313;
+  --background: #131313;
+
+  /* Surfaces */
+  --card-bg: #1b1c1c;
+  --surface: #1f2020;
+  --surface-hover: #2a2a2a;
+  --surface-active: #353535;
+
+  /* Containers */
+  --surface-lowest: #0e0e0e;
+  --surface-low: #1b1c1c;
+  --surface-high: #2a2a2a;
+  --surface-highest: #353535;
+
+  /* Text */
+  --text-main: #e4e2e1;
+  --text-secondary: #c4c7c7;
+  --text-muted: #8e9192;
+  --text-disabled: #5f5e5e;
+
+  /* Primary */
+  --primary-accent: #c8c6c5;
+  --primary-text: #313030;
+  --primary-hover: #e5e2e1;
+
+  /* Secondary */
+  --secondary: #c6c6c7;
+  --secondary-text: #2f3131;
+
+  /* Borders */
+  --border-color: #444748;
+  --border-light: #8e9192;
+
+  /* Inputs */
+  --input-bg: #131313;
+  --input-hover: #1f2020;
+
+  /* Error */
+  --error: #ffb4ab;
+  --error-bg: #93000a;
+  --error-text: #ffdad6;
+
+  /* Success */
+  --success: #86efac;
+  --success-bg: #14532d;
+
+  /* Warning */
+  --warning: #facc15;
+  --warning-bg: #713f12;
+}
