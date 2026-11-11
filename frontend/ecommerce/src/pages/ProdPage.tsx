@@ -246,8 +246,6 @@ export default function ProductPage() {
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14">
 
-                            {/* GALERIA */}
-
                             <section className="flex flex-col-reverse sm:flex-row gap-4">
 
                                 <div className="flex sm:flex-col gap-3">
@@ -300,8 +298,6 @@ export default function ProductPage() {
 
                             </section>
 
-                            {/* DETALHES */}
-
                             <section className="flex flex-col">
 
                                 <div className="mb-6">
@@ -336,8 +332,6 @@ export default function ProductPage() {
                                     </div>
 
                                 </div>
-
-                                {/* PREÇO */}
 
                                 <div className="bg-(--surface-lowest) border border-(--border-color) rounded-xl p-5 mb-6">
 
@@ -376,9 +370,6 @@ export default function ProductPage() {
                                     )}
 
                                 </div>
-
-                                {/* DESCRIÇÃO */}
-
                                 <div className="border-t border-(--border-color) pt-6 mb-6">
 
                                     <h2 className="font-semibold text-(--text-main) mb-3">
@@ -493,8 +484,6 @@ export default function ProductPage() {
                                     )}
 
                                 </div>
-
-                                {/* ADICIONAR */}
 
                                 <button
                                     onClick={handleAddToCart}

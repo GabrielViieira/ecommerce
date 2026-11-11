@@ -15,7 +15,7 @@ import CheckoutPage from './pages/checkout';
 import HistoryPage from './pages/history';
 import OrderTracking from './pages/orderTracking';
 import ProductPage from './pages/ProdPage';
-import ProdutosGrid from './components/Produtos';
+import ProductsPage from './pages/Products';
 
 
 const router = createBrowserRouter([
@@ -60,7 +60,7 @@ const router = createBrowserRouter([
   },
   {
     path:"/products",
-    element: <ProdutosGrid itemsPerPage={8} />
+    Component: ProductsPage
   }
 ])
 
