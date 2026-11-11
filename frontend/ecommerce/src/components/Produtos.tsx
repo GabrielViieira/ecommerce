@@ -217,8 +217,6 @@ export default function ProdutosGrid({ itemsPerPage }: ProdutosGridProps) {
         <>
             <div className="w-full">
 
-                {/* HEADER */}
-
                 <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mb-10">
 
                     <div>
@@ -246,9 +244,6 @@ export default function ProdutosGrid({ itemsPerPage }: ProdutosGridProps) {
                     )}
 
                 </div>
-
-
-                {/* CREATE MODAL */}
 
                 {isOpen && (
                     <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
@@ -389,9 +384,6 @@ export default function ProdutosGrid({ itemsPerPage }: ProdutosGridProps) {
 
                     </div>
                 )}
-
-
-                {/* EDIT MODAL */}
 
                 {isEdit && (
                     <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
@@ -566,9 +558,6 @@ export default function ProdutosGrid({ itemsPerPage }: ProdutosGridProps) {
 
                     </div>
                 )}
-
-
-                {/* PRODUCTS GRID */}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
 

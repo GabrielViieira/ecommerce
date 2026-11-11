@@ -3,7 +3,6 @@ import { IUser } from "../model/userModel"
 import { Request, Response, NextFunction } from "express"
 
 const secret = process.env.SECRET_KEY as string
-// const secret = "teste"
 
 interface MyTokenPayload {
   roles: string[]
