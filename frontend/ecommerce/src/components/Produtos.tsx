@@ -446,7 +446,7 @@ export default function ProdutosGrid({ itemsPerPage }: ProdutosGridProps) {
                       ({categories.length} available)
                     </span>
                   </label>
-                  <div className="w-full bg-[#181818] border border-[#303030] rounded-lg p-3 min-h-[80px] focus-within:border-purple-500 transition-colors">
+                  <div className="w-full bg-[#181818] border border-[#303030] rounded-lg p-3 min-h-20 focus-within:border-purple-500 transition-colors">
                     {categories.length === 0 ? (
                       <p className="text-sm text-zinc-600">
                         No categories available
@@ -675,7 +675,7 @@ export default function ProdutosGrid({ itemsPerPage }: ProdutosGridProps) {
                       ({categories.length} available)
                     </span>
                   </label>
-                  <div className="w-full bg-[#181818] border border-[#303030] rounded-lg p-3 min-h-[80px] focus-within:border-purple-500 transition-colors">
+                  <div className="w-full bg-[#181818] border border-[#303030] rounded-lg p-3 min-h-20 focus-within:border-purple-500 transition-colors">
                     {categories.length === 0 ? (
                       <p className="text-sm text-zinc-600">
                         No categories available

@@ -1040,7 +1040,7 @@ function ProductModal({
                 ({categories.length} disponíveis)
               </span>
             </label>
-            <div className="w-full bg-(--surface-lowest) border border-(--border-color) rounded-lg p-3 min-h-[80px] focus-within:border-(--primary-accent) transition-colors">
+            <div className="w-full bg-(--surface-lowest) border border-(--border-color) rounded-lg p-3 min-h-20 focus-within:border-(--primary-accent) transition-colors">
               {categories.length === 0 ? (
                 <p className="text-sm text-(--text-muted)">
                   Nenhuma categoria disponível

@@ -107,9 +107,9 @@ export default function CartPage() {
       setCart((prev) =>
         prev
           ? {
-              ...prev,
-              items: [],
-            }
+            ...prev,
+            items: [],
+          }
           : prev,
       );
     } catch (error) {
