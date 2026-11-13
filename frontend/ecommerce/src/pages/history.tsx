@@ -436,7 +436,7 @@ export default function HistoryPage() {
                                                 <button
                                                     onClick={() =>
                                                         navigate(
-                                                            "/orders/tracking"
+                                                            "/tracking"
                                                         )
                                                     }
                                                     className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-(--surface) border border-(--border-color) text-sm font-medium hover:bg-(--surface-hover) hover:border-(--border-light) transition-all cursor-pointer"

@@ -20,10 +20,11 @@ export default function TabsComp() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] transition-all duration-300 cursor-pointer rounded-full ${activeTab === tab.id
+              className={`px-5 py-2.5 text-xs font-semibold uppercase tracking-[0.18em] transition-all duration-300 cursor-pointer rounded-full ${
+                activeTab === tab.id
                   ? "bg-white text-black"
                   : "text-(--text) hover:text-white hover:bg-white/5"
-                }`}
+              }`}
             >
               {tab.label}
             </button>
@@ -32,7 +33,6 @@ export default function TabsComp() {
       </nav>
 
       <section className="py-10 md:py-14">
-
         {activeTab === "destaques" && (
           <div className="animate-in fade-in duration-500">
             <div className="mb-8">
@@ -48,7 +48,6 @@ export default function TabsComp() {
             <DestaquesComp itemsPerPage={10} />
           </div>
         )}
-
 
         {activeTab === "produtos" && (
           <div className="animate-in fade-in duration-500">
@@ -66,7 +65,6 @@ export default function TabsComp() {
           </div>
         )}
 
-
         {activeTab === "promocoes" && (
           <div className="animate-in fade-in duration-500">
             <div className="mb-8">
@@ -82,7 +80,6 @@ export default function TabsComp() {
             <PromocoesList />
           </div>
         )}
-
       </section>
     </main>
   );

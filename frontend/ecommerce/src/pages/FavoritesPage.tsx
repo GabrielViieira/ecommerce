@@ -61,7 +61,7 @@ export default function FavoritesPage() {
             const data = await response.json();
             // data is an array of product documents, extract _id
             ids = data.map((item: any) =>
-              typeof item === "string" ? item : item._id
+              typeof item === "string" ? item : item._id,
             );
           }
         } else {
@@ -135,7 +135,7 @@ export default function FavoritesPage() {
         const items = result?.items || [];
         // Extract IDs from objects or use strings directly
         const itemIds = items.map((item: any) =>
-          typeof item === "string" ? item : item._id
+          typeof item === "string" ? item : item._id,
         );
         const isNowFavorite = itemIds.includes(productId);
 

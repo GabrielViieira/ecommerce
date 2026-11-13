@@ -1,13 +1,13 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
 import {
   addProductsService,
   clearCart,
   decreItemService,
-  getCartService
-} from "../services/APIservice"
+  getCartService,
+} from "../services/APIservice";
 
-import HeaderComp from "../components/header"
-import { Link } from "react-router"
+import HeaderComp from "../components/header";
+import { Link } from "react-router";
 
 import {
   Minus,
@@ -16,115 +16,115 @@ import {
   Trash2,
   ArrowRight,
   PackageOpen,
-  Loader2
-} from "lucide-react"
+  Loader2,
+} from "lucide-react";
 
 type Product = {
-  _id: string
-  title: string
-  price: number
-  image?: string
-}
+  _id: string;
+  title: string;
+  price: number;
+  image?: string;
+};
 
 type CartItem = {
-  _id: string
-  productId: Product
-  quantity: number
-}
+  _id: string;
+  productId: Product;
+  quantity: number;
+};
 
 type Cart = {
-  _id: string
-  userId: string
-  items: CartItem[]
-}
+  _id: string;
+  userId: string;
+  items: CartItem[];
+};
 
 export default function CartPage() {
-  const [cart, setCart] = useState<Cart | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [updatingProduct, setUpdatingProduct] = useState<string | null>(null)
-  const [clearingCart, setClearingCart] = useState(false)
+  const [cart, setCart] = useState<Cart | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [updatingProduct, setUpdatingProduct] = useState<string | null>(null);
+  const [clearingCart, setClearingCart] = useState(false);
 
   const loadCart = async () => {
     try {
-      setLoading(true)
+      setLoading(true);
 
-      const response = await getCartService()
+      const response = await getCartService();
 
-      setCart(response.data || response)
+      setCart(response.data || response);
     } catch (error) {
-      console.error("Erro ao carregar carrinho:", error)
+      console.error("Erro ao carregar carrinho:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    loadCart()
-  }, [])
+    loadCart();
+  }, []);
 
   const handleAdd = async (productId: string) => {
     try {
-      setUpdatingProduct(productId)
+      setUpdatingProduct(productId);
 
       const response = await addProductsService({
-        productId
-      })
+        productId,
+      });
 
-      setCart(response.data || response)
+      setCart(response.data || response);
     } catch (error) {
-      console.error("Erro ao adicionar produto:", error)
+      console.error("Erro ao adicionar produto:", error);
     } finally {
-      setUpdatingProduct(null)
+      setUpdatingProduct(null);
     }
-  }
+  };
 
   const handleDec = async (productId: string) => {
     try {
-      setUpdatingProduct(productId)
+      setUpdatingProduct(productId);
 
-      const response = await decreItemService(productId)
+      const response = await decreItemService(productId);
 
-      setCart(response.data || response)
+      setCart(response.data || response);
     } catch (error) {
-      console.error("Erro ao diminuir quantidade:", error)
+      console.error("Erro ao diminuir quantidade:", error);
     } finally {
-      setUpdatingProduct(null)
+      setUpdatingProduct(null);
     }
-  }
+  };
 
   const handleClearCart = async () => {
     const confirmed = window.confirm(
-      "Deseja realmente remover todos os produtos do carrinho?"
-    )
+      "Deseja realmente remover todos os produtos do carrinho?",
+    );
 
-    if (!confirmed) return
+    if (!confirmed) return;
 
     try {
-      setClearingCart(true)
+      setClearingCart(true);
 
-      await clearCart()
+      await clearCart();
 
-      setCart(prev =>
+      setCart((prev) =>
         prev
           ? {
               ...prev,
-              items: []
+              items: [],
             }
-          : prev
-      )
+          : prev,
+      );
     } catch (error) {
-      console.error("Erro ao limpar carrinho:", error)
+      console.error("Erro ao limpar carrinho:", error);
     } finally {
-      setClearingCart(false)
+      setClearingCart(false);
     }
-  }
+  };
 
   const formatPrice = (price: number) => {
     return Number(price).toLocaleString("pt-BR", {
       style: "currency",
-      currency: "BRL"
-    })
-  }
+      currency: "BRL",
+    });
+  };
 
   if (loading) {
     return (
@@ -134,13 +134,11 @@ export default function CartPage() {
         <main className="min-h-screen bg-(--background)">
           <div className="max-w-300 mx-auto px-4 md:px-8 py-16">
             <div className="animate-pulse space-y-6">
-
               <div className="h-8 w-48 bg-(--surface) rounded-lg" />
 
               <div className="grid lg:grid-cols-[1fr_350px] gap-8">
-
                 <div className="space-y-4">
-                  {[1, 2, 3].map(item => (
+                  {[1, 2, 3].map((item) => (
                     <div
                       key={item}
                       className="h-32 rounded-xl bg-(--surface)"
@@ -149,13 +147,12 @@ export default function CartPage() {
                 </div>
 
                 <div className="h-64 rounded-xl bg-(--surface)" />
-
               </div>
             </div>
           </div>
         </main>
       </>
-    )
+    );
   }
 
   if (!cart) {
@@ -164,9 +161,7 @@ export default function CartPage() {
         <HeaderComp />
 
         <main className="min-h-screen bg-(--background) flex items-center justify-center">
-
           <div className="text-center">
-
             <PackageOpen
               size={50}
               className="mx-auto mb-4 text-(--text-muted)"
@@ -192,39 +187,29 @@ export default function CartPage() {
             >
               Ir para a loja
             </Link>
-
           </div>
-
         </main>
       </>
-    )
+    );
   }
 
   const total = cart.items.reduce(
-    (sum, item) =>
-      sum + item.productId.price * item.quantity,
-    0
-  )
+    (sum, item) => sum + item.productId.price * item.quantity,
+    0,
+  );
 
-  const totalItems = cart.items.reduce(
-    (sum, item) => sum + item.quantity,
-    0
-  )
+  const totalItems = cart.items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <>
       <HeaderComp />
 
       <main className="min-h-screen bg-(--background) text-(--text-main)">
-
         <div className="w-full max-w-300 mx-auto px-4 md:px-8 lg:px-12 py-10">
-
           {/* HEADER */}
 
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
-
             <div>
-
               <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-(--text-muted)">
                 Seu carrinho
               </p>
@@ -238,7 +223,6 @@ export default function CartPage() {
                   ? `${totalItems} ${totalItems === 1 ? "item" : "itens"} no seu carrinho`
                   : "Seu carrinho está vazio"}
               </p>
-
             </div>
 
             {cart.items.length > 0 && (
@@ -265,25 +249,18 @@ export default function CartPage() {
                 "
               >
                 {clearingCart ? (
-                  <Loader2
-                    size={16}
-                    className="animate-spin"
-                  />
+                  <Loader2 size={16} className="animate-spin" />
                 ) : (
                   <Trash2 size={16} />
                 )}
-
                 Limpar carrinho
               </button>
             )}
-
           </div>
-
 
           {/* CARRINHO VAZIO */}
 
           {cart.items.length === 0 ? (
-
             <div
               className="
                 border
@@ -299,7 +276,6 @@ export default function CartPage() {
                 text-center
               "
             >
-
               <div
                 className="
                   w-16
@@ -312,10 +288,7 @@ export default function CartPage() {
                   mb-5
                 "
               >
-                <ShoppingBag
-                  size={28}
-                  className="text-(--text-secondary)"
-                />
+                <ShoppingBag size={28} className="text-(--text-secondary)" />
               </div>
 
               <h2 className="text-xl font-semibold text-(--text-main)">
@@ -343,33 +316,22 @@ export default function CartPage() {
               >
                 Continuar comprando
               </Link>
-
             </div>
-
           ) : (
-
             <div className="grid lg:grid-cols-[1fr_360px] gap-8 items-start">
-
-
               {/* PRODUTOS */}
 
               <section className="space-y-4">
-
                 <h2 className="text-lg font-semibold text-(--text-main)">
                   Produtos
                 </h2>
 
+                {cart.items.map((item) => {
+                  const subtotal = item.productId.price * item.quantity;
 
-                {cart.items.map(item => {
-
-                  const subtotal =
-                    item.productId.price * item.quantity
-
-                  const isUpdating =
-                    updatingProduct === item.productId._id
+                  const isUpdating = updatingProduct === item.productId._id;
 
                   return (
-
                     <div
                       key={item._id}
                       className="
@@ -387,8 +349,6 @@ export default function CartPage() {
                         transition-all
                       "
                     >
-
-
                       {/* IMAGEM */}
 
                       <Link
@@ -404,9 +364,7 @@ export default function CartPage() {
                           overflow-hidden
                         "
                       >
-
                         {item.productId.image ? (
-
                           <img
                             src={item.productId.image}
                             alt={item.productId.title}
@@ -419,9 +377,7 @@ export default function CartPage() {
                               duration-300
                             "
                           />
-
                         ) : (
-
                           <div
                             className="
                               w-full
@@ -435,23 +391,15 @@ export default function CartPage() {
                           >
                             Sem imagem
                           </div>
-
                         )}
-
                       </Link>
-
 
                       {/* INFORMAÇÕES */}
 
                       <div className="flex flex-col flex-1 min-w-0">
-
                         <div className="flex justify-between gap-4">
-
                           <div className="min-w-0">
-
-                            <Link
-                              to={`/pagina-produto/${item.productId._id}`}
-                            >
+                            <Link to={`/pagina-produto/${item.productId._id}`}>
                               <h3
                                 className="
                                   font-semibold
@@ -465,16 +413,12 @@ export default function CartPage() {
                               </h3>
                             </Link>
 
-
                             <p className="text-sm text-(--text-secondary) mt-1">
                               {formatPrice(item.productId.price)}
                             </p>
-
                           </div>
 
-
                           <div className="text-right shrink-0">
-
                             <p className="text-xs text-(--text-muted)">
                               Subtotal
                             </p>
@@ -482,11 +426,8 @@ export default function CartPage() {
                             <p className="font-semibold text-(--text-main) mt-1">
                               {formatPrice(subtotal)}
                             </p>
-
                           </div>
-
                         </div>
-
 
                         {/* CONTROLES */}
 
@@ -499,7 +440,6 @@ export default function CartPage() {
                             justify-between
                           "
                         >
-
                           <div
                             className="
                               flex
@@ -511,11 +451,8 @@ export default function CartPage() {
                               bg-(--surface-lowest)
                             "
                           >
-
                             <button
-                              onClick={() =>
-                                handleDec(item.productId._id)
-                              }
+                              onClick={() => handleDec(item.productId._id)}
                               disabled={isUpdating}
                               className="
                                 w-10
@@ -532,7 +469,6 @@ export default function CartPage() {
                             >
                               <Minus size={16} />
                             </button>
-
 
                             <span
                               className="
@@ -552,11 +488,8 @@ export default function CartPage() {
                               )}
                             </span>
 
-
                             <button
-                              onClick={() =>
-                                handleAdd(item.productId._id)
-                              }
+                              onClick={() => handleAdd(item.productId._id)}
                               disabled={isUpdating}
                               className="
                                 w-10
@@ -573,26 +506,17 @@ export default function CartPage() {
                             >
                               <Plus size={16} />
                             </button>
-
                           </div>
-
 
                           <span className="text-xs text-(--text-muted)">
                             Quantidade: {item.quantity}
                           </span>
-
                         </div>
-
                       </div>
-
                     </div>
-
-                  )
-
+                  );
                 })}
-
               </section>
-
 
               {/* RESUMO */}
 
@@ -607,16 +531,13 @@ export default function CartPage() {
                   bg-(--card-bg)
                 "
               >
-
                 <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-(--text-muted)">
                   Resumo do pedido
                 </p>
 
-
                 <h2 className="mt-2 text-xl font-semibold text-(--text-main)">
                   Resumo
                 </h2>
-
 
                 <div
                   className="
@@ -627,34 +548,20 @@ export default function CartPage() {
                     border-(--border-color)
                   "
                 >
-
                   <div className="flex justify-between text-sm">
+                    <span className="text-(--text-secondary)">Produtos</span>
 
-                    <span className="text-(--text-secondary)">
-                      Produtos
-                    </span>
-
-                    <span className="text-(--text-main)">
-                      {totalItems}
-                    </span>
-
+                    <span className="text-(--text-main)">{totalItems}</span>
                   </div>
 
-
                   <div className="flex justify-between text-sm">
-
-                    <span className="text-(--text-secondary)">
-                      Frete
-                    </span>
+                    <span className="text-(--text-secondary)">Frete</span>
 
                     <span className="text-(--text-muted)">
                       Calculado no checkout
                     </span>
-
                   </div>
-
                 </div>
-
 
                 <div
                   className="
@@ -664,17 +571,12 @@ export default function CartPage() {
                     mt-6
                   "
                 >
-
-                  <span className="text-sm text-(--text-secondary)">
-                    Total
-                  </span>
+                  <span className="text-sm text-(--text-secondary)">Total</span>
 
                   <span className="text-2xl font-bold text-(--text-main)">
                     {formatPrice(total)}
                   </span>
-
                 </div>
-
 
                 <Link
                   to="/payments/checkout"
@@ -697,11 +599,8 @@ export default function CartPage() {
                   "
                 >
                   Ir para pagamento
-
                   <ArrowRight size={16} />
-
                 </Link>
-
 
                 <Link
                   to="/home"
@@ -717,16 +616,11 @@ export default function CartPage() {
                 >
                   Continuar comprando
                 </Link>
-
               </aside>
-
             </div>
-
           )}
-
         </div>
-
       </main>
     </>
-  )
+  );
 }

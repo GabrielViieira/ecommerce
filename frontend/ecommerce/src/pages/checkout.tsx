@@ -1,313 +1,257 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
 import {
-    CreditCard,
-    Loader2,
-    QrCode,
-    ShoppingBag,
-    User,
-    X
-} from "lucide-react"
-import { useNavigate } from "react-router"
-import { QRCodeSVG } from "qrcode.react"
+  CreditCard,
+  CheckCircle,
+  Loader2,
+  QrCode,
+  ShoppingBag,
+  User,
+  X,
+} from "lucide-react";
+import { useNavigate } from "react-router";
+import { QRCodeSVG } from "qrcode.react";
 
-import { checkOut, getCartService } from "../services/APIservice"
-import HeaderComp from "../components/header"
-import Toast from "../components/notify"
-
+import { checkOut, getCartService } from "../services/APIservice";
+import HeaderComp from "../components/header";
+import Toast from "../components/notify";
 
 interface Product {
-    _id: string
-    title: string
-    price: number
-    image?: string
+  _id: string;
+  title: string;
+  price: number;
+  image?: string;
 }
 
 interface CartItem {
-    _id: string
-    productId: Product | string
-    quantity: number
+  _id: string;
+  productId: Product | string;
+  quantity: number;
 }
 
 interface Cart {
-    _id: string
-    userId: string
-    items: CartItem[]
+  _id: string;
+  userId: string;
+  items: CartItem[];
 }
 
-type PaymentMethod = "pix" | "cartao"
-
+type PaymentMethod = "pix" | "cartao";
 
 export default function CheckoutPage() {
-    const [cart, setCart] = useState<Cart | null>(null)
-    const [metodo, setMetodo] = useState<PaymentMethod>("pix")
+  const [cart, setCart] = useState<Cart | null>(null);
+  const [metodo, setMetodo] = useState<PaymentMethod>("pix");
 
-    const [loading, setLoading] = useState(true)
-    const [processing, setProcessing] = useState(false)
+  const [loading, setLoading] = useState(true);
+  const [processing, setProcessing] = useState(false);
 
-    const [cpf, setCpf] = useState("")
-    const [isOpenP, setIsOpenP] = useState(false)
+  // Estado para indicar que o pagamento foi concluído
+  const [paymentComplete, setPaymentComplete] = useState(false);
 
-    const [pixPayload, setPixPayload] = useState("")
-    const [timer, setTimer] = useState(10)
+  const [cpf, setCpf] = useState("");
+  const [isOpenP, setIsOpenP] = useState(false);
 
-    const [toast, setToast] = useState<{
-        show: boolean
-        message: string
-        type: "success" | "error" | "warning" | "info"
-    }>({
-        show: false,
-        message: "",
-        type: "info"
-    })
+  const [pixPayload, setPixPayload] = useState("");
+  const [timer, setTimer] = useState(10);
 
-    const navigate = useNavigate()
+  const [toast, setToast] = useState<{
+    show: boolean;
+    message: string;
+    type: "success" | "error" | "warning" | "info";
+  }>({
+    show: false,
+    message: "",
+    type: "info",
+  });
 
+  const navigate = useNavigate();
 
-    const showToast = (
-        message: string,
-        type: "success" | "error" | "warning" | "info"
-    ) => {
-        setToast({
-            show: true,
-            message,
-            type
-        })
+  const showToast = (
+    message: string,
+    type: "success" | "error" | "warning" | "info",
+  ) => {
+    setToast({
+      show: true,
+      message,
+      type,
+    });
+  };
+
+  const loadCart = async () => {
+    try {
+      setLoading(true);
+
+      const response = await getCartService();
+
+      setCart(response.data || response);
+    } catch (error) {
+      console.error("Erro ao carregar checkout:", error);
+
+      showToast("Não foi possível carregar seu carrinho.", "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadCart();
+  }, []);
+
+  const getProduct = (productId: Product | string): Product | null => {
+    if (typeof productId === "string") {
+      return null;
     }
 
+    return productId;
+  };
 
-    const loadCart = async () => {
-        try {
-            setLoading(true)
+  const getCartTotal = () => {
+    if (!cart) return 0;
 
-            const response = await getCartService()
+    return cart.items.reduce((total, item) => {
+      const product = getProduct(item.productId);
 
-            setCart(response.data || response)
+      if (!product) return total;
 
-        } catch (error) {
-            console.error("Erro ao carregar checkout:", error)
+      return total + product.price * item.quantity;
+    }, 0);
+  };
 
-            showToast(
-                "Não foi possível carregar seu carrinho.",
-                "error"
-            )
+  const checkPayment = async () => {
+    if (!cart || processing) return;
 
-        } finally {
-            setLoading(false)
-        }
+    try {
+      setProcessing(true);
+
+      const itensFormatados = cart.items.map((item) => ({
+        productId:
+          typeof item.productId === "string"
+            ? item.productId
+            : item.productId._id,
+
+        quantity: item.quantity,
+      }));
+
+      const data = await checkOut(itensFormatados);
+
+      if (!data) {
+        throw new Error("Erro no pagamento");
+      }
+
+      setIsOpenP(false);
+
+      console.log("4. Pagamento concluído");
+
+      setPaymentComplete(true);
+
+      console.log("5. Estado de pagamento atualizado");
+
+      setTimeout(() => {
+        navigate("/cart");
+      }, 3000);
+    } catch (error) {
+      console.error("Erro no pagamento:", error);
+
+      setIsOpenP(false);
+
+      showToast("Falha ao processar o pagamento.", "error");
+    } finally {
+      setProcessing(false);
+    }
+  };
+
+  const handleCpfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, "");
+
+    const cpfFormatado = value
+      .slice(0, 11)
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d)/, "$1.$2")
+      .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+
+    setCpf(cpfFormatado);
+  };
+
+  const handleFinalizarClick = () => {
+    if (!cart) return;
+
+    if (metodo === "pix") {
+      const cpfNumerico = cpf.replace(/\D/g, "");
+
+      if (cpfNumerico.length !== 11) {
+        showToast("Por favor, preencha o CPF corretamente.", "warning");
+
+        return;
+      }
+
+      setPixPayload(`PIX-PAGAMENTO-${Date.now()}-${cart._id}`);
+
+      setTimer(10);
+
+      setIsOpenP(true);
+
+      return;
     }
 
-
-    useEffect(() => {
-        loadCart()
-    }, [])
-
-
-    const getProduct = (
-        productId: Product | string
-    ): Product | null => {
-
-        if (typeof productId === "string") {
-            return null
-        }
-
-        return productId
+    if (metodo == "cartao") {
+      checkPayment();
+      return;
     }
 
+    checkPayment();
+  };
 
-    const getCartTotal = () => {
-        if (!cart) return 0
+  useEffect(() => {
+    if (!isOpenP) return;
 
-        return cart.items.reduce((total, item) => {
-            const product = getProduct(item.productId)
-
-            if (!product) return total
-
-            return total + product.price * item.quantity
-        }, 0)
+    if (timer <= 0) {
+      checkPayment();
+      return;
     }
 
-
-    const checkPayment = async () => {
-        if (!cart || processing) return
-
-        try {
-            setProcessing(true)
-
-            const itensFormatados = cart.items.map(item => ({
-                productId:
-                    typeof item.productId === "string"
-                        ? item.productId
-                        : item.productId._id,
-
-                quantity: item.quantity
-            }))
-
-
-            const data = await checkOut(itensFormatados)
-
-            if (!data) {
-                throw new Error("Erro no pagamento")
-            }
-
-
-            setIsOpenP(false)
-
-            showToast(
-                "Pagamento aprovado com sucesso!",
-                "success"
-            )
-
-
-            await loadCart()
-
-
-            setTimeout(() => {
-                navigate("/cart")
-            }, 1200)
-
-        } catch (error) {
-            console.error("Erro no pagamento:", error)
-
-            setIsOpenP(false)
-
-            showToast(
-                "Falha ao processar o pagamento.",
-                "error"
-            )
-
-        } finally {
-            setProcessing(false)
-        }
-    }
-
-
-    const handleCpfChange = (
-        e: React.ChangeEvent<HTMLInputElement>
-    ) => {
-
-        const value = e.target.value.replace(/\D/g, "")
-
-        const cpfFormatado = value
-            .slice(0, 11)
-            .replace(/(\d{3})(\d)/, "$1.$2")
-            .replace(/(\d{3})(\d)/, "$1.$2")
-            .replace(/(\d{3})(\d{1,2})$/, "$1-$2")
-
-        setCpf(cpfFormatado)
-    }
-
-
-    const handleFinalizarClick = () => {
-
-        if (!cart) return
-
-
-        if (metodo === "pix") {
-
-            const cpfNumerico = cpf.replace(/\D/g, "")
-
-            if (cpfNumerico.length !== 11) {
-
-                showToast(
-                    "Por favor, preencha o CPF corretamente.",
-                    "warning"
-                )
-
-                return
-            }
-
-
-            setPixPayload(
-                `PIX-PAGAMENTO-${Date.now()}-${cart._id}`
-            )
-
-            setTimer(10)
-
-            setIsOpenP(true)
-
-            return
+    const interval = setInterval(() => {
+      setTimer((previousTimer) => {
+        if (previousTimer <= 1) {
+          clearInterval(interval);
+          return 0;
         }
 
-        if(metodo == "cartao"){
-            showToast(
-                "Pagamento Sendo processado",
-                "info"
-            )
-            return
-        }
+        return previousTimer - 1;
+      });
+    }, 1000);
 
-        showToast(
-            "Pagamento Concluido",
-            "success"
-        )
-        checkPayment()
-    }
+    return () => {
+      clearInterval(interval);
+    };
+  }, [timer, isOpenP]);
 
-
-    useEffect(() => {
-
-        if (!isOpenP) return
-
-        if (timer <= 0) {
-            checkPayment()
-            return
-        }
-
-
-        const interval = setInterval(() => {
-
-            setTimer(previousTimer => {
-
-                if (previousTimer <= 1) {
-                    clearInterval(interval)
-                    return 0
-                }
-
-                return previousTimer - 1
-            })
-
-        }, 1000)
-
-
-        return () => {
-            clearInterval(interval)
-        }
-
-    }, [timer, isOpenP])
-
-
-    if (loading) {
-
-        return (
-            <div
-                className="
+  if (loading) {
+    return (
+      <div
+        className="
                     min-h-screen
                     bg-(--site-bg)
                     flex
                     items-center
                     justify-center
                 "
-            >
-                <Loader2
-                    className="
+      >
+        <Loader2
+          className="
                         animate-spin
                         text-(--primary-accent)
                     "
-                    size={32}
-                />
-            </div>
-        )
-    }
+          size={32}
+        />
+      </div>
+    );
+  }
 
+  if (!cart || cart.items.length === 0) {
+    return (
+      <>
+        <HeaderComp />
 
-    if (!cart || cart.items.length === 0) {
-
-        return (
-            <>
-                <HeaderComp />
-
-                <div
-                    className="
+        <div
+          className="
                         min-h-screen
                         bg-(--site-bg)
                         text-(--text-main)
@@ -317,20 +261,14 @@ export default function CheckoutPage() {
                         justify-center
                         gap-4
                     "
-                >
+        >
+          <ShoppingBag size={42} className="text-(--text-muted)" />
 
-                    <ShoppingBag
-                        size={42}
-                        className="text-(--text-muted)"
-                    />
+          <p className="text-lg font-semibold">Seu carrinho está vazio.</p>
 
-                    <p className="text-lg font-semibold">
-                        Seu carrinho está vazio.
-                    </p>
-
-                    <button
-                        onClick={() => navigate("/cart")}
-                        className="
+          <button
+            onClick={() => navigate("/cart")}
+            className="
                             px-5
                             py-2.5
                             rounded-xl
@@ -341,35 +279,31 @@ export default function CheckoutPage() {
                             hover:bg-(--primary-hover)
                             transition-colors
                         "
-                    >
-                        Voltar ao carrinho
-                    </button>
+          >
+            Voltar ao carrinho
+          </button>
+        </div>
+      </>
+    );
+  }
 
-                </div>
-            </>
-        )
-    }
+  const total = getCartTotal();
 
+  return (
+    <>
+      <HeaderComp />
 
-    const total = getCartTotal()
-
-
-    return (
-        <>
-            <HeaderComp />
-
-            <main
-                className="
+      <main
+        className="
                     min-h-screen
                     bg-(--site-bg)
                     text-(--text-main)
                     p-4
                     md:p-8
                 "
-            >
-
-                <div
-                    className="
+      >
+        <div
+          className="
                         max-w-6xl
                         mx-auto
                         flex
@@ -377,13 +311,11 @@ export default function CheckoutPage() {
                         lg:flex-row
                         gap-6
                     "
-                >
+        >
+          {/* RESUMO */}
 
-
-                    {/* RESUMO */}
-
-                    <section
-                        className="
+          <section
+            className="
                             w-full
                             lg:w-105
                             bg-(--card-bg)
@@ -394,10 +326,9 @@ export default function CheckoutPage() {
                             flex
                             flex-col
                         "
-                    >
-
-                        <div
-                            className="
+          >
+            <div
+              className="
                                 flex
                                 items-center
                                 gap-3
@@ -406,10 +337,9 @@ export default function CheckoutPage() {
                                 border-b
                                 border-(--border-color)
                             "
-                        >
-
-                            <div
-                                className="
+            >
+              <div
+                className="
                                     w-10
                                     h-10
                                     rounded-xl
@@ -418,52 +348,37 @@ export default function CheckoutPage() {
                                     items-center
                                     justify-center
                                 "
-                            >
-                                <ShoppingBag
-                                    size={20}
-                                    className="text-(--primary-accent)"
-                                />
-                            </div>
+              >
+                <ShoppingBag size={20} className="text-(--primary-accent)" />
+              </div>
 
-                            <div>
+              <div>
+                <h2 className="font-bold">Resumo do Pedido</h2>
 
-                                <h2 className="font-bold">
-                                    Resumo do Pedido
-                                </h2>
+                <p className="text-xs text-(--text-muted)">
+                  {cart.items.length} item(ns)
+                </p>
+              </div>
+            </div>
 
-                                <p className="text-xs text-(--text-muted)">
-                                    {cart.items.length} item(ns)
-                                </p>
-
-                            </div>
-
-                        </div>
-
-
-                        <div
-                            className="
+            <div
+              className="
                                 flex-1
                                 space-y-3
                                 max-h-105
                                 overflow-y-auto
                                 pr-1
                             "
-                        >
+            >
+              {cart.items.map((item) => {
+                const product = getProduct(item.productId);
 
-                            {cart.items.map(item => {
+                if (!product) return null;
 
-                                const product = getProduct(
-                                    item.productId
-                                )
-
-                                if (!product) return null
-
-
-                                return (
-
-                                    <div
-                                        key={item._id}
-                                        className="
+                return (
+                  <div
+                    key={item._id}
+                    className="
                                             flex
                                             gap-3
                                             items-center
@@ -473,10 +388,9 @@ export default function CheckoutPage() {
                                             p-3
                                             rounded-xl
                                         "
-                                    >
-
-                                        <div
-                                            className="
+                  >
+                    <div
+                      className="
                                                 w-15
                                                 h-15
                                                 shrink-0
@@ -484,146 +398,114 @@ export default function CheckoutPage() {
                                                 rounded-lg
                                                 overflow-hidden
                                             "
-                                        >
-
-                                            {product.image ? (
-
-                                                <img
-                                                    src={product.image}
-                                                    alt={product.title}
-                                                    className="
+                    >
+                      {product.image ? (
+                        <img
+                          src={product.image}
+                          alt={product.title}
+                          className="
                                                         w-full
                                                         h-full
                                                         object-cover
                                                     "
-                                                />
-
-                                            ) : (
-
-                                                <div
-                                                    className="
+                        />
+                      ) : (
+                        <div
+                          className="
                                                         w-full
                                                         h-full
                                                         flex
                                                         items-center
                                                         justify-center
                                                     "
-                                                >
-                                                    <ShoppingBag
-                                                        size={18}
-                                                        className="
+                        >
+                          <ShoppingBag
+                            size={18}
+                            className="
                                                             text-(--text-muted)
                                                         "
-                                                    />
-                                                </div>
+                          />
+                        </div>
+                      )}
+                    </div>
 
-                                            )}
-
-                                        </div>
-
-
-                                        <div className="flex-1 min-w-0">
-
-                                            <h3
-                                                className="
+                    <div className="flex-1 min-w-0">
+                      <h3
+                        className="
                                                     text-sm
                                                     font-medium
                                                     truncate
                                                 "
-                                            >
-                                                {product.title}
-                                            </h3>
+                      >
+                        {product.title}
+                      </h3>
 
-                                            <p
-                                                className="
+                      <p
+                        className="
                                                     text-xs
                                                     text-(--text-muted)
                                                     mt-1
                                                 "
-                                            >
-                                                {item.quantity}x
-                                                {" "}
-                                                R$ {product.price.toFixed(2)}
-                                            </p>
+                      >
+                        {item.quantity}x R$ {product.price.toFixed(2)}
+                      </p>
+                    </div>
 
-                                        </div>
-
-
-                                        <span
-                                            className="
+                    <span
+                      className="
                                                 text-sm
                                                 font-bold
                                                 text-(--primary-accent)
                                             "
-                                        >
+                    >
+                      R$ {(item.quantity * product.price).toFixed(2)}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
 
-                                            R$
-                                            {" "}
-                                            {(
-                                                item.quantity *
-                                                product.price
-                                            ).toFixed(2)}
-
-                                        </span>
-
-                                    </div>
-
-                                )
-
-                            })}
-
-                        </div>
-
-
-                        <div
-                            className="
+            <div
+              className="
                                 mt-6
                                 pt-5
                                 border-t
                                 border-(--border-color)
                             "
-                        >
-
-                            <div
-                                className="
+            >
+              <div
+                className="
                                     flex
                                     justify-between
                                     items-center
                                 "
-                            >
-
-                                <span
-                                    className="
+              >
+                <span
+                  className="
                                         text-sm
                                         text-(--text-secondary)
                                     "
-                                >
-                                    Total a pagar
-                                </span>
+                >
+                  Total a pagar
+                </span>
 
-
-                                <span
-                                    className="
+                <span
+                  className="
                                         text-2xl
                                         font-black
                                         text-(--primary-accent)
                                     "
-                                >
-                                    R$ {total.toFixed(2)}
-                                </span>
+                >
+                  R$ {total.toFixed(2)}
+                </span>
+              </div>
+            </div>
+          </section>
 
-                            </div>
+          {/* PAGAMENTO */}
 
-                        </div>
-
-                    </section>
-
-
-
-                    {/* PAGAMENTO */}
-
-                    <section
-                        className="
+          <section
+            className="
                             flex-1
                             bg-(--card-bg)
                             border
@@ -632,11 +514,9 @@ export default function CheckoutPage() {
                             p-6
                             md:p-8
                         "
-                    >
-
-
-                        <div
-                            className="
+          >
+            <div
+              className="
                                 flex
                                 gap-1
                                 mb-8
@@ -646,11 +526,10 @@ export default function CheckoutPage() {
                                 p-1
                                 rounded-xl
                             "
-                        >
-
-                            <button
-                                onClick={() => setMetodo("pix")}
-                                className={`
+            >
+              <button
+                onClick={() => setMetodo("pix")}
+                className={`
                                     flex-1
                                     flex
                                     items-center
@@ -662,7 +541,8 @@ export default function CheckoutPage() {
                                     cursor-pointer
                                     transition-all
 
-                                    ${metodo === "pix"
+                                    ${
+                                      metodo === "pix"
                                         ? `
                                                 bg-(--primary-accent)
                                                 text-(--primary-text)
@@ -673,18 +553,14 @@ export default function CheckoutPage() {
                                             `
                                     }
                                 `}
-                            >
+              >
+                <QrCode size={18} />
+                PIX
+              </button>
 
-                                <QrCode size={18} />
-
-                                PIX
-
-                            </button>
-
-
-                            <button
-                                onClick={() => setMetodo("cartao")}
-                                className={`
+              <button
+                onClick={() => setMetodo("cartao")}
+                className={`
                                     flex-1
                                     flex
                                     items-center
@@ -696,7 +572,8 @@ export default function CheckoutPage() {
                                     cursor-pointer
                                     transition-all
 
-                                    ${metodo === "cartao"
+                                    ${
+                                      metodo === "cartao"
                                         ? `
                                                 bg-(--primary-accent)
                                                 text-(--primary-text)
@@ -707,33 +584,25 @@ export default function CheckoutPage() {
                                             `
                                     }
                                 `}
-                            >
+              >
+                <CreditCard size={18} />
+                Cartão
+              </button>
+            </div>
 
-                                <CreditCard size={18} />
-
-                                Cartão
-
-                            </button>
-
-                        </div>
-
-
-                        {metodo === "pix" ? (
-
-                            <div
-                                className="
+            {metodo === "pix" ? (
+              <div
+                className="
                                     bg-(--surface-lowest)
                                     border
                                     border-(--border-color)
                                     p-6
                                     rounded-2xl
                                 "
-                            >
-
-                                <div className="mb-6">
-
-                                    <label
-                                        className="
+              >
+                <div className="mb-6">
+                  <label
+                    className="
                                             flex
                                             items-center
                                             gap-2
@@ -742,22 +611,18 @@ export default function CheckoutPage() {
                                             text-(--text-secondary)
                                             mb-2
                                         "
-                                    >
+                  >
+                    <User size={14} />
+                    CPF DO TITULAR
+                  </label>
 
-                                        <User size={14} />
-
-                                        CPF DO TITULAR
-
-                                    </label>
-
-
-                                    <input
-                                        type="text"
-                                        value={cpf}
-                                        onChange={handleCpfChange}
-                                        placeholder="000.000.000-00"
-                                        maxLength={14}
-                                        className="
+                  <input
+                    type="text"
+                    value={cpf}
+                    onChange={handleCpfChange}
+                    placeholder="000.000.000-00"
+                    maxLength={14}
+                    className="
                                             w-full
                                             bg-(--input-bg)
                                             border
@@ -769,13 +634,11 @@ export default function CheckoutPage() {
                                             transition-colors
                                             focus:border-(--border-light)
                                         "
-                                    />
+                  />
+                </div>
 
-                                </div>
-
-
-                                <div
-                                    className="
+                <div
+                  className="
                                         p-6
                                         bg-(--surface)
                                         border
@@ -783,52 +646,44 @@ export default function CheckoutPage() {
                                         rounded-xl
                                         text-center
                                     "
-                                >
-
-                                    <QrCode
-                                        size={28}
-                                        className="
+                >
+                  <QrCode
+                    size={28}
+                    className="
                                             mx-auto
                                             mb-3
                                             text-(--primary-accent)
                                         "
-                                    />
+                  />
 
-                                    <p
-                                        className="
+                  <p
+                    className="
                                             text-sm
                                             text-(--text-secondary)
                                         "
-                                    >
-                                        O QR Code será gerado após
-                                        confirmar o pagamento.
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-                        ) : (
-
-                            <div className="grid grid-cols-2 gap-4">
-
-                                <div className="col-span-2">
-
-                                    <label
-                                        className="
+                  >
+                    O QR Code será gerado após confirmar o pagamento.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2">
+                  <label
+                    className="
                                             text-xs
                                             font-bold
                                             text-(--text-secondary)
                                             mb-2
                                             block
                                         "
-                                    >
-                                        NOME COMPLETO
-                                    </label>
+                  >
+                    NOME COMPLETO
+                  </label>
 
-                                    <input
-                                        type="text"
-                                        className="
+                  <input
+                    type="text"
+                    className="
                                             w-full
                                             bg-(--input-bg)
                                             border
@@ -839,30 +694,27 @@ export default function CheckoutPage() {
                                             text-(--text-main)
                                             focus:border-(--border-light)
                                         "
-                                    />
+                  />
+                </div>
 
-                                </div>
-
-
-                                <div className="col-span-2">
-
-                                    <label
-                                        className="
+                <div className="col-span-2">
+                  <label
+                    className="
                                             text-xs
                                             font-bold
                                             text-(--text-secondary)
                                             mb-2
                                             block
                                         "
-                                    >
-                                        NÚMERO DO CARTÃO
-                                    </label>
+                  >
+                    NÚMERO DO CARTÃO
+                  </label>
 
-                                    <input
-                                        type="text"
-                                        placeholder="0000 0000 0000 0000"
-                                        maxLength={19}
-                                        className="
+                  <input
+                    type="text"
+                    placeholder="0000 0000 0000 0000"
+                    maxLength={19}
+                    className="
                                             w-full
                                             bg-(--input-bg)
                                             border
@@ -873,30 +725,27 @@ export default function CheckoutPage() {
                                             text-(--text-main)
                                             focus:border-(--border-light)
                                         "
-                                    />
+                  />
+                </div>
 
-                                </div>
-
-
-                                <div>
-
-                                    <label
-                                        className="
+                <div>
+                  <label
+                    className="
                                             text-xs
                                             font-bold
                                             text-(--text-secondary)
                                             mb-2
                                             block
                                         "
-                                    >
-                                        VALIDADE
-                                    </label>
+                  >
+                    VALIDADE
+                  </label>
 
-                                    <input
-                                        type="text"
-                                        placeholder="MM/AA"
-                                        maxLength={5}
-                                        className="
+                  <input
+                    type="text"
+                    placeholder="MM/AA"
+                    maxLength={5}
+                    className="
                                             w-full
                                             bg-(--input-bg)
                                             border
@@ -907,30 +756,27 @@ export default function CheckoutPage() {
                                             text-(--text-main)
                                             focus:border-(--border-light)
                                         "
-                                    />
+                  />
+                </div>
 
-                                </div>
-
-
-                                <div>
-
-                                    <label
-                                        className="
+                <div>
+                  <label
+                    className="
                                             text-xs
                                             font-bold
                                             text-(--text-secondary)
                                             mb-2
                                             block
                                         "
-                                    >
-                                        CVV
-                                    </label>
+                  >
+                    CVV
+                  </label>
 
-                                    <input
-                                        type="text"
-                                        placeholder="123"
-                                        maxLength={3}
-                                        className="
+                  <input
+                    type="text"
+                    placeholder="123"
+                    maxLength={3}
+                    className="
                                             w-full
                                             bg-(--input-bg)
                                             border
@@ -941,77 +787,62 @@ export default function CheckoutPage() {
                                             text-(--text-main)
                                             focus:border-(--border-light)
                                         "
-                                    />
+                  />
+                </div>
+              </div>
+            )}
 
-                                </div>
-
-                            </div>
-
-                        )}
-
-
-                        <button
-                            onClick={handleFinalizarClick}
-                            disabled={processing}
-                            className="
+            <button
+              onClick={handleFinalizarClick}
+              disabled={processing || paymentComplete}
+              className={`
                                 w-full
                                 mt-8
                                 py-4
                                 rounded-xl
-                                bg-(--primary-accent)
-                                text-(--primary-text)
-                                font-black
+                                font-bold
                                 cursor-pointer
-                                hover:bg-(--primary-hover)
-                                disabled:opacity-50
-                                disabled:cursor-not-allowed
                                 transition-all
                                 flex
                                 items-center
                                 justify-center
                                 gap-2
-                            "
-                        >
 
-                            {processing ? (
+                                ${
+                                  paymentComplete
+                                    ? "bg-green-500 text-white hover:bg-green-600"
+                                    : processing
+                                      ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                                      : "bg-(--primary-accent) text-(--primary-text) hover:bg-(--primary-hover)"
+                                }
+                            `}
+            >
+              {paymentComplete ? (
+                <>
+                  <CheckCircle size={20} />
+                  <span className="text-green-100">PAGAMENTO REALIZADO</span>
+                </>
+              ) : processing ? (
+                <>
+                  <Loader2 size={20} className="animate-spin" />
+                  PROCESSANDO
+                </>
+              ) : (
+                <>
+                  <CreditCard size={20} />
+                  PROSSEGUIR
+                </>
+              )}
+            </button>
+          </section>
+        </div>
+      </main>
 
-                                <>
-                                    <Loader2
-                                        size={20}
-                                        className="animate-spin"
-                                    />
+      {/* MODAL PIX */}
 
-                                    PROCESSANDO
-
-                                </>
-
-                            ) : (
-
-                                <>
-                                    <CreditCard size={20} />
-
-                                    PROSSEGUIR
-
-                                </>
-
-                            )}
-
-                        </button>
-
-                    </section>
-
-                </div>
-
-            </main>
-
-
-
-            {/* MODAL PIX */}
-
-            {isOpenP && (
-
-                <div
-                    className="
+      {isOpenP && (
+        <div
+          className="
                         fixed
                         inset-0
                         z-100
@@ -1022,10 +853,9 @@ export default function CheckoutPage() {
                         backdrop-blur-md
                         px-4
                     "
-                >
-
-                    <div
-                        className="
+        >
+          <div
+            className="
                             relative
                             w-full
                             max-w-sm
@@ -1040,13 +870,11 @@ export default function CheckoutPage() {
                             items-center
                             shadow-2xl
                         "
-                    >
-
-
-                        <button
-                            onClick={() => setIsOpenP(false)}
-                            disabled={processing}
-                            className="
+          >
+            <button
+              onClick={() => setIsOpenP(false)}
+              disabled={processing}
+              className="
                                 absolute
                                 top-4
                                 right-4
@@ -1055,13 +883,12 @@ export default function CheckoutPage() {
                                 cursor-pointer
                                 transition-colors
                             "
-                        >
-                            <X size={20} />
-                        </button>
+            >
+              <X size={20} />
+            </button>
 
-
-                        <div
-                            className="
+            <div
+              className="
                                 w-12
                                 h-12
                                 rounded-xl
@@ -1071,78 +898,66 @@ export default function CheckoutPage() {
                                 justify-center
                                 mb-4
                             "
-                        >
-                            <QrCode
-                                className="
+            >
+              <QrCode
+                className="
                                     text-(--primary-accent)
                                 "
-                            />
-                        </div>
+              />
+            </div>
 
-
-                        <h3
-                            className="
+            <h3
+              className="
                                 text-lg
                                 font-bold
                                 text-(--text-main)
                                 mb-1
                             "
-                        >
-                            Efetue o Pagamento
-                        </h3>
+            >
+              Efetue o Pagamento
+            </h3>
 
-
-                        <p
-                            className="
+            <p
+              className="
                                 text-xs
                                 text-(--text-muted)
                                 mb-6
                             "
-                        >
-                            Escaneie o QR Code pelo aplicativo
-                            do seu banco.
-                        </p>
+            >
+              Escaneie o QR Code pelo aplicativo do seu banco.
+            </p>
 
-
-                        <div
-                            className="
+            <div
+              className="
                                 p-4
                                 bg-white
                                 rounded-xl
                                 mb-6
                             "
-                        >
+            >
+              <QRCodeSVG value={pixPayload} size={180} level="H" />
+            </div>
 
-                            <QRCodeSVG
-                                value={pixPayload}
-                                size={180}
-                                level="H"
-                            />
-
-                        </div>
-
-
-                        <div className="space-y-2">
-
-                            <p
-                                className="
+            <div className="space-y-2">
+              <p
+                className="
                                     text-[10px]
                                     uppercase
                                     tracking-widest
                                     text-(--text-muted)
                                     font-bold
                                 "
-                            >
-                                Aguardando aprovação
-                            </p>
+              >
+                Aguardando aprovação
+              </p>
 
-
-                            <p
-                                className={`
+              <p
+                className={`
                                     text-2xl
                                     font-black
 
-                                    ${timer <= 3
+                                    ${
+                                      timer <= 3
                                         ? `
                                                 text-(--error)
                                                 animate-pulse
@@ -1152,41 +967,28 @@ export default function CheckoutPage() {
                                             `
                                     }
                                 `}
-                            >
+              >
+                00:
+                {timer < 10 ? `0${timer}` : timer}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
-                                00:
-                                {timer < 10
-                                    ? `0${timer}`
-                                    : timer
-                                }
-
-                            </p>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            )}
-
-
-            {toast.show && (
-
-                <Toast
-                    message={toast.message}
-                    type={toast.type}
-                    duration={3000}
-                    onClose={() =>
-                        setToast(previous => ({
-                            ...previous,
-                            show: false
-                        }))
-                    }
-                />
-
-            )}
-
-        </>
-    )
+      {toast.show && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          duration={3000}
+          onClose={() =>
+            setToast((previous) => ({
+              ...previous,
+              show: false,
+            }))
+          }
+        />
+      )}
+    </>
+  );
 }
