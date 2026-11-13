@@ -180,13 +180,101 @@
     0% { background-position: -200% 0; }
     100% { background-position: 200% 0; }
   }
+
+  /* Staggered fade-up for lists */
+  .animate-stagger-fade-up {
+    animation: staggerFadeUp 0.4s ease-out forwards;
+  }
+
+  @keyframes staggerFadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Page transition fade */
+  .animate-page-enter {
+    animation: pageEnter 0.5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  }
+
+  @keyframes pageEnter {
+    0% {
+      opacity: 0;
+      transform: translateY(20px) scale(0.98);
+    }
+    50% {
+      opacity: 1;
+      transform: translateY(-5px) scale(1.01);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  /* Staggered container for child elements */
+  .animate-stagger-container {
+    animation: staggerContainer 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  }
+
+  @keyframes staggerContainer {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  /* Individual staggered items */
+  .animate-stagger-item {
+    opacity: 0;
+    transform: translateY(15px);
+    animation: staggerItem 0.5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+  }
+
+  @keyframes staggerItem {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Glow pulse for decorative elements */
+  .animate-glow-pulse {
+    animation: glowPulse 3s ease-in-out infinite;
+  }
+
+  @keyframes glowPulse {
+    0%, 100% {
+      box-shadow: 0 0 0 0 rgba(184, 184, 184, 0.2);
+    }
+    50% {
+      box-shadow: 0 0 20px 5px rgba(184, 184, 184, 0);
+    }
+  }
+
+  /* Subtle rotation for decorative gradients */
+  .animate-rotate-subtle {
+    animation: rotateSubtle 8s ease-in-out infinite;
+  }
+
+  @keyframes rotateSubtle {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(5deg); }
+  }
 }
 
 /* Elegant button utilities */
 .btn-sleek {
   @apply px-6 py-3 rounded-lg font-medium transition-all duration-200;
-  background: linear-gradient(135deg, #b8b8b8 0%, #a0a0a0 100%);
-  color: #0a0a0a;
+  background: var(--gradient-button);
+  color: var(--primary-text);
   border: none;
   box-shadow: var(--shadow-md);
 }
@@ -199,8 +287,8 @@
 .btn-outline-sleek {
   @apply px-6 py-3 rounded-lg font-medium transition-all duration-200;
   background: transparent;
-  color: #b8b8b8;
-  border: 1px solid #b8b8b8;
+  color: var(--primary-accent);
+  border: 1px solid var(--primary-accent);
   box-shadow: var(--shadow-sm);
 }
 
@@ -212,29 +300,29 @@
 /* Card utilities */
 .card-sleek {
   @apply rounded-xl p-6 transition-all duration-200;
-  background: linear-gradient(155deg, #1a1a1a 0%, #121212 100%);
-  border: 1px solid #333333;
+  background: var(--gradient-card);
+  border: 1px solid var(--border-color);
   box-shadow: var(--shadow-md);
 }
 
 .card-sleek:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-lg);
-  border-color: #555555;
+  border-color: var(--border-light);
 }
 
 /* Input utilities */
 .input-sleek {
   @apply w-full rounded-lg px-4 py-3 transition-all duration-150;
-  background: #0a0a0a;
-  border: 1px solid #333333;
-  color: #f0f0f0;
+  background: var(--site-bg);
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
 }
 
 .input-sleek:focus {
   outline: none;
-  border-color: #b8b8b8;
-  box-shadow: 0 0 0 3px rgba(184, 184, 184, 0.2);
+  border-color: var(--primary-accent);
+  box-shadow: 0 0 0 3px var(--glow-color);
 }
 
 /* Floating animation for decorative elements */

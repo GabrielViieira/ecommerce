@@ -3,6 +3,7 @@ import "./index.css";
 
 import { createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
+import PageTransition from "./components/PageTransition";
 
 import LoginPage from "./pages/login";
 import HomePage from "./pages/home";
@@ -21,51 +22,99 @@ import FavoritesPage from "./pages/FavoritesPage";
 const router = createBrowserRouter([
   {
     path: "/",
-    Component: LoginPage,
+    Component: () => (
+      <PageTransition>
+        <LoginPage />
+      </PageTransition>
+    ),
   },
   {
     path: "/home",
-    Component: HomePage,
+    Component: () => (
+      <PageTransition>
+        <HomePage />
+      </PageTransition>
+    ),
   },
   {
     path: "/register",
-    Component: RegisterPage,
+    Component: () => (
+      <PageTransition>
+        <RegisterPage />
+      </PageTransition>
+    ),
   },
   {
     path: "/cart",
-    Component: CartPage,
+    Component: () => (
+      <PageTransition>
+        <CartPage />
+      </PageTransition>
+    ),
   },
   {
     path: "/user/:username",
-    Component: UserProfile,
+    Component: () => (
+      <PageTransition>
+        <UserProfile />
+      </PageTransition>
+    ),
   },
   {
     path: "/dashboard",
-    Component: Dashboard,
+    Component: () => (
+      <PageTransition>
+        <Dashboard />
+      </PageTransition>
+    ),
   },
   {
     path: "/payments/checkout",
-    Component: CheckoutPage,
+    Component: () => (
+      <PageTransition>
+        <CheckoutPage />
+      </PageTransition>
+    ),
   },
   {
     path: "/history",
-    Component: HistoryPage,
+    Component: () => (
+      <PageTransition>
+        <HistoryPage />
+      </PageTransition>
+    ),
   },
   {
     path: "/tracking",
-    Component: OrderTracking,
+    Component: () => (
+      <PageTransition>
+        <OrderTracking />
+      </PageTransition>
+    ),
   },
   {
     path: "/pagina-produto/:id",
-    Component: ProductGrid,
+    Component: () => (
+      <PageTransition>
+        <ProductGrid />
+      </PageTransition>
+    ),
   },
   {
     path: "/products",
-    Component: ProductsPage,
+    Component: () => (
+      <PageTransition>
+        <ProductsPage />
+      </PageTransition>
+    ),
   },
   {
     path: "/favorites",
-    Component: FavoritesPage,
+    Component: () => (
+      <PageTransition>
+        <FavoritesPage />
+      </PageTransition>
+    ),
   },
 ]);
 

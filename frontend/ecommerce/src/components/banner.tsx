@@ -112,13 +112,13 @@ export default function BannerComp() {
 
   if (loading) {
     return (
-      <div className="mx-auto mt-8 h-[65vh] w-full max-w-360 animate-pulse bg-gradient-to-r from-[#0a0a0a] to-[#121212] border border-[#333333]" />
+      <div className="mx-auto mt-8 h-[65vh] w-full max-w-360 animate-pulse bg-gradient-to-r from-(--site-bg) to-(--surface-low) border border-(--border-light)" />
     );
   }
 
   return (
     <section className="w-full">
-      <div className="relative mx-auto w-full max-w-360 overflow-hidden rounded-2xl shadow-2xl border border-[#333333]">
+      <div className="relative mx-auto w-full max-w-360 overflow-hidden rounded-2xl shadow-2xl border border-(--border-light)">
         <div className="overflow-hidden" ref={emblaRef}>
           <div className="flex touch-pan-y">
             {slides.map((slide, _index) => {
@@ -135,19 +135,19 @@ export default function BannerComp() {
                   <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/60" />
 
                   {/* Subtle silver shimmer effect */}
-                  <div className="absolute -top-32 -left-32 w-64 h-64 bg-gradient-to-tr from-[#b8b8b8]/15 to-transparent rounded-full filter blur-3xl animate-pulse-subtle" />
+                  <div className="absolute -top-32 -left-32 w-64 h-64 bg-gradient-to-tr from-(--primary-accent)/15 to-transparent rounded-full filter blur-3xl animate-pulse-subtle" />
 
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="max-w-2xl px-6 text-center animate-fade-in">
-                      <span className="mb-5 block text-xs font-semibold uppercase tracking-[0.3em] text-[#b8b8b8]/70">
+                      <span className="mb-5 block text-xs font-semibold uppercase tracking-[0.3em] text-(--primary-accent)/70">
                         Featured Collection
                       </span>
 
-                      <h1 className="text-4xl font-bold tracking-tight text-white md:text-6xl bg-gradient-to-r from-white to-[#b8b8b8] bg-clip-text text-transparent">
+                      <h1 className="text-4xl font-bold tracking-tight text-white md:text-6xl bg-gradient-to-r from-white to-(--primary-accent) bg-clip-text text-transparent">
                         Discover Something New
                       </h1>
 
-                      <p className="mx-auto mt-5 max-w-lg text-sm leading-6 text-[#c0c0c0] md:text-base">
+                      <p className="mx-auto mt-5 max-w-lg text-sm leading-6 text-(--text-secondary) md:text-base">
                         Explore our curated selection and discover products made
                         for your everyday life.
                       </p>
@@ -157,10 +157,10 @@ export default function BannerComp() {
                           to={slide.linkTo}
                           className="
                             mt-8 inline-block px-7 py-3 text-xs font-semibold uppercase tracking-wider
-                            text-[#0a0a0a] bg-gradient-to-r from-[#b8b8b8] to-[#c8c8c8]
+                            text-(--primary-text) bg-gradient-to-r from-(--primary-accent) to-(--accent)
                             rounded-lg shadow-md
-                            transition-all duration-fast
-                            hover:scale-105 hover:shadow-lg hover:shadow-[#b8b8b8]/30
+                            transition-all duration-200
+                            hover:scale-105 hover:shadow-lg hover:shadow-(--primary-accent)/30
                           "
                         >
                           Explore Collection
@@ -195,9 +195,9 @@ export default function BannerComp() {
           className="
             absolute left-6 top-1/2 z-20 -translate-y-1/2
             flex items-center justify-center w-12 h-12
-            rounded-full border border-[#555555] bg-black/60 text-[#c0c0c0]
-            backdrop-blur-sm transition-all duration-fast
-            hover:border-[#b8b8b8] hover:bg-[#b8b8b8]/20 hover:text-[#b8b8b8]
+            rounded-full border border-(--border-light) bg-black/60 text-(--text-secondary)
+            backdrop-blur-sm transition-all duration-200
+            hover:border-(--primary-accent) hover:bg-(--primary-accent)/20 hover:text-(--primary-accent)
             group
           "
         >
@@ -210,9 +210,9 @@ export default function BannerComp() {
           className="
             absolute right-6 top-1/2 z-20 -translate-y-1/2
             flex items-center justify-center w-12 h-12
-            rounded-full border border-[#555555] bg-black/60 text-[#c0c0c0]
-            backdrop-blur-sm transition-all duration-fast
-            hover:border-[#b8b8b8] hover:bg-[#b8b8b8]/20 hover:text-[#b8b8b8]
+            rounded-full border border-(--border-light) bg-black/60 text-(--text-secondary)
+            backdrop-blur-sm transition-all duration-200
+            hover:border-(--primary-accent) hover:bg-(--primary-accent)/20 hover:text-(--primary-accent)
             group
           "
         >
@@ -228,9 +228,9 @@ export default function BannerComp() {
               onClick={() => goTo(index)}
               className={`
                 h-1 w-8 rounded-full
-                transition-all duration-fast cursor-pointer
-                bg-[#555555] hover:bg-[#b8b8b8]
-                ${index === selectedSnap ? "w-10 bg-[#b8b8b8]" : "w-4 opacity-50"}
+                transition-all duration-200 cursor-pointer
+                bg-(--border-light) hover:bg-(--primary-accent)
+                ${index === selectedSnap ? "w-10 bg-(--primary-accent)" : "w-4 opacity-50"}
               `}
             />
           ))}

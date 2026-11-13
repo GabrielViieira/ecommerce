@@ -77,37 +77,44 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen bg-(--site-bg) text-(--text-main)">
+    <main className="min-h-screen bg-(--site-bg) text-(--text-main) overflow-hidden">
+      {/* Floating decorative elements with subtle animations */}
+      <div className="absolute -top-40 -left-40 w-80 h-80 bg-gradient-to-tr from-(--primary-accent)/10 to-transparent rounded-full filter blur-3xl animate-glow-pulse" />
+      <div className="absolute -bottom-40 -right-40 w-80 h-80 bg-gradient-to-bl from-(--primary-accent)/10 to-transparent rounded-full filter blur-3xl animate-glow-pulse" style={{ animationDelay: '1.5s' }} />
+
       <div className="grid min-h-screen lg:grid-cols-2">
         <section className="hidden border-r border-(--border-color) bg-(--surface-lowest) p-10 lg:flex lg:flex-col lg:justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-(--primary-accent) text-(--primary-text)">
+          {/* Subtle shimmer overlay */}
+          <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(184,184,184,0.05)_50%,transparent_75%)] bg-[size:200%_200%] animate-shimmer" />
+
+          <div className="flex items-center gap-3 animate-stagger-item" style={{ animationDelay: '0.2s' }}>
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-(--gradient-primary) text-(--primary-text)">
               <ShoppingBag size={20} />
             </div>
 
-            <span className="text-lg font-semibold tracking-tight">
+            <span className="text-lg font-semibold tracking-tight bg-gradient-to-r from-(--text-main) to-(--primary-accent) bg-clip-text text-transparent">
               Silent Commerce
             </span>
           </div>
 
-          <div className="max-w-md mx-auto">
-            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-(--text-muted)">
+          <div className="max-w-md mx-auto animate-stagger-container">
+            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.2em] text-(--text-muted) animate-stagger-item" style={{ animationDelay: '0.4s' }}>
               Welcome back
             </p>
 
-            <h1 className="text-4xl font-semibold leading-tight tracking-tight xl:text-5xl">
+            <h1 className="text-4xl font-semibold leading-tight tracking-tight xl:text-5xl bg-gradient-to-r from-(--text-main) to-(--text-secondary) bg-clip-text text-transparent animate-stagger-item" style={{ animationDelay: '0.5s' }}>
               Commerce without
               <br />
               unnecessary noise.
             </h1>
 
-            <p className="mt-6 max-w-sm text-sm leading-6 text-(--text-secondary)">
+            <p className="mt-6 max-w-sm text-sm leading-6 text-(--text-secondary) animate-stagger-item" style={{ animationDelay: '0.6s' }}>
               Access your account and continue your experience with a clean,
               focused, and minimal shopping environment.
             </p>
           </div>
 
-          <div className="border-t border-(--border-color) pt-5">
+          <div className="border-t border-(--border-color) pt-5 animate-stagger-item" style={{ animationDelay: '0.7s' }}>
             <p className="text-xs font-semibold uppercase tracking-[0.15em] text-(--text-muted)">
               Secure access
             </p>
@@ -118,37 +125,40 @@ export default function LoginPage() {
           </div>
         </section>
 
-        <section className="flex min-h-screen items-center justify-center px-6 py-10">
-          <div className="w-full max-w-sm">
-            <div className="mb-10 lg:hidden">
+        <section className="flex min-h-screen items-center justify-center px-6 py-10 relative">
+          {/* Background gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-(--site-bg) via-(--surface-low)/5 to-(--site-bg)" />
+
+          <div className="w-full max-w-sm relative z-10 animate-stagger-container">
+            <div className="mb-10 lg:hidden animate-stagger-item" style={{ animationDelay: '0.1s' }}>
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-md bg-(--primary-accent) text-(--primary-text)">
+                <div className="flex h-10 w-10 items-center justify-center rounded-md bg-(--gradient-primary) text-(--primary-text)">
                   <ShoppingBag size={20} />
                 </div>
 
-                <span className="text-lg font-semibold">Silent Commerce</span>
+                <span className="text-lg font-semibold bg-gradient-to-r from-(--text-main) to-(--primary-accent) bg-clip-text text-transparent">Silent Commerce</span>
               </div>
             </div>
 
-            <div className="mb-8">
+            <div className="mb-8 animate-stagger-item" style={{ animationDelay: '0.2s' }}>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-(--text-muted)">
                 Account access
               </p>
 
-              <h2 className="mt-3 text-3xl font-semibold tracking-tight">
+              <h2 className="mt-3 text-3xl font-semibold tracking-tight bg-gradient-to-r from-(--text-main) to-(--text-secondary) bg-clip-text text-transparent">
                 Welcome back
               </h2>
 
-              <p className="mt-3 text-sm leading-6 text-(--text-secondary)">
+              <p className="mt-3 text-sm leading-6 text-(--text-muted)">
                 Sign in to your account to continue shopping.
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-5 animate-stagger-container">
               <div className="space-y-2">
                 <label
                   htmlFor="user"
-                  className="text-xs font-semibold uppercase tracking-widest text-(--text-secondary)"
+                  className="text-xs font-semibold uppercase tracking-widest text-(--text-muted)"
                 >
                   Username
                 </label>
@@ -166,15 +176,15 @@ export default function LoginPage() {
                     id="user"
                     required
                     placeholder="Enter your username"
-                    className="h-11 w-full rounded-md border border-(--border-color) bg-transparent pl-10 pr-4 text-sm text-(--text-main) outline-none transition focus:border-(--text-main)"
+                    className="h-11 w-full rounded-md border border-(--border-light) bg-(--surface-low)/50 placeholder:text-(--text-muted) text-(--text-main) outline-none transition-all duration-200 focus:border-(--primary-accent)/50 focus:bg-(--surface-low)/80 pl-10 pr-4"
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 animate-stagger-item" style={{ animationDelay: '0.3s' }}>
                 <label
                   htmlFor="pass"
-                  className="text-xs font-semibold uppercase tracking-widest text-(--text-secondary)"
+                  className="text-xs font-semibold uppercase tracking-widest text-(--text-muted)"
                 >
                   Password
                 </label>
@@ -192,7 +202,7 @@ export default function LoginPage() {
                     id="pass"
                     required
                     placeholder="Enter your password"
-                    className="h-11 w-full rounded-md border border-(--border-color) bg-transparent pl-10 pr-11 text-sm text-(--text-main) outline-none transition focus:border-(--text-main)"
+                    className="h-11 w-full rounded-md border border-(--border-light) bg-(--surface-low)/50 placeholder:text-(--text-muted) text-(--text-main) outline-none transition-all duration-200 focus:border-(--primary-accent)/50 focus:bg-(--surface-low)/80 pl-10 pr-11"
                   />
 
                   <button
@@ -207,22 +217,33 @@ export default function LoginPage() {
 
               <button
                 type="submit"
-                className="h-11 w-full cursor-pointer rounded-md bg-(--text-main) text-sm font-medium text-(--site-bg) transition-opacity hover:opacity-90"
+                className="group flex h-11 w-full items-center justify-center gap-2 rounded-md bg-(--gradient-primary) text-sm font-medium text-(--primary-text) transition-all duration-200 hover:scale-[0.98] active:scale-[0.99] animate-stagger-item"
+                style={{ animationDelay: '0.4s' }}
               >
                 Sign in
+                <LockKeyhole
+                  size={17}
+                  className="transition-transform group-hover:scale-110"
+                />
               </button>
             </form>
 
-            <div className="my-7 border-t border-(--border-color)" />
+            <div className="my-7 flex items-center gap-4 animate-stagger-item" style={{ animationDelay: '0.5s' }}>
+              <div className="h-px flex-1 bg-(--border-light)" />
 
-            <div className="text-center">
-              <p className="text-sm text-(--text-secondary)">
+              <span className="text-xs text-(--text-muted)">OR</span>
+
+              <div className="h-px flex-1 bg-(--border-light)" />
+            </div>
+
+            <div className="text-center animate-stagger-item" style={{ animationDelay: '0.6s' }}>
+              <p className="text-sm text-(--text-muted)">
                 Don't have an account?
               </p>
 
               <button
                 onClick={routingRegister}
-                className="mt-3 cursor-pointer text-sm font-medium text-(--text-main) underline underline-offset-4 transition-opacity hover:opacity-70"
+                className="mt-3 cursor-pointer text-sm font-medium bg-gradient-to-r from-(--text-main) to-(--text-secondary) bg-clip-text text-transparent underline underline-offset-4 transition-opacity hover:opacity-70"
               >
                 Create an account
               </button>
