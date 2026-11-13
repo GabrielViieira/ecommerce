@@ -1,86 +1,80 @@
-import { useState } from "react"
-import { useNavigate } from "react-router"
-import {
-  Eye,
-  EyeOff,
-  LockKeyhole,
-  ShoppingBag,
-  User
-} from "lucide-react"
-import { loginUserService, validateToken } from "../services/APIservice"
-import { useAuth } from "../context/AuthContext"
-import Toast from "../components/notify"
+import { useState } from "react";
+import { useNavigate } from "react-router";
+import { Eye, EyeOff, LockKeyhole, ShoppingBag, User } from "lucide-react";
+import { loginUserService, validateToken } from "../services/APIservice";
+import { useAuth } from "../context/AuthContext";
+import Toast from "../components/notify";
 
 export default function LoginPage() {
-  const { setUser } = useAuth()
-  const [username, setUsername] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const navigate = useNavigate()
+  const { setUser } = useAuth();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   const [toast, setToast] = useState<{
-    show: boolean
-    msg: string
-    type: "success" | "error"
-    time?: number
+    show: boolean;
+    msg: string;
+    type: "success" | "error";
+    time?: number;
   }>({
     show: false,
     msg: "",
     type: "success",
-    time: 3000
-  })
+    time: 3000,
+  });
 
   const handleSubmit = async (e: any) => {
-    e.preventDefault()
+    e.preventDefault();
 
     try {
-      const response = await loginUserService(username, password)
+      const response = await loginUserService(username, password);
 
-      const tokenReal = response?.data?.token || response?.token || response
+      const tokenReal = response?.data?.token || response?.token || response;
 
       if (!tokenReal || typeof tokenReal === "object") {
         alert(
-          "Critical error: The frontend could not retrieve the authentication token."
-        )
+          "Critical error: The frontend could not retrieve the authentication token.",
+        );
 
-        console.log("Raw login API response:", response)
-        return
+        console.log("Raw login API response:", response);
+        return;
       }
 
-      localStorage.setItem("token", tokenReal)
+      localStorage.setItem("token", tokenReal);
 
-      const userData = await validateToken()
+      const userData = await validateToken();
 
       if (!userData) {
-        alert("Failed to validate the authenticated user.")
-        return
+        alert("Failed to validate the authenticated user.");
+        return;
       }
 
-      setUser(userData)
+      setUser(userData);
 
       setToast({
         show: true,
         msg: "Login successful!",
         type: "success",
-        time: 4000
-      })
+        time: 4000,
+      });
 
-      navigate("/home")
+      navigate("/home");
     } catch (error: any) {
-      console.error("Login error:", error)
+      console.error("Login error:", error);
 
       setToast({
         show: true,
         msg: "Invalid username or password.",
         type: "error",
-        time: 4000
-      })
+        time: 4000,
+      });
     }
-  }
+  };
 
   const routingRegister = () => {
-    navigate("/register")
-  }
+    navigate("/register");
+  };
 
   return (
     <main className="min-h-screen bg-(--site-bg) text-(--text-main)">
@@ -132,9 +126,7 @@ export default function LoginPage() {
                   <ShoppingBag size={20} />
                 </div>
 
-                <span className="text-lg font-semibold">
-                  Silent Commerce
-                </span>
+                <span className="text-lg font-semibold">Silent Commerce</span>
               </div>
             </div>
 
@@ -208,11 +200,7 @@ export default function LoginPage() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-(--text-muted) transition hover:text-(--text-main)"
                   >
-                    {showPassword ? (
-                      <EyeOff size={18} />
-                    ) : (
-                      <Eye size={18} />
-                    )}
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
               </div>
@@ -239,7 +227,6 @@ export default function LoginPage() {
                 Create an account
               </button>
             </div>
-          
           </div>
         </section>
       </div>
@@ -253,5 +240,5 @@ export default function LoginPage() {
         />
       )}
     </main>
-  )
+  );
 }
