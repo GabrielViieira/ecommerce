@@ -9,7 +9,7 @@ import type { SlideUI } from "../model/slideModel";
 export default function BannerComp() {
   const autoplay = useRef(
     Autoplay({
-      delay: 4000,
+      delay: 5000,
       stopOnInteraction: false,
     }),
   );
@@ -112,46 +112,59 @@ export default function BannerComp() {
 
   if (loading) {
     return (
-      <div className="mx-auto mt-8 h-[65vh] w-full max-w-360 animate-pulse border border-(--border) bg-(--surface-container-lowest)" />
+      <div className="mx-auto mt-8 h-[65vh] w-full max-w-360 animate-pulse bg-gradient-to-r from-[#0a0a0a] to-[#121212] border border-[#333333]" />
     );
   }
 
   return (
     <section className="w-full">
-      <div className="relative mx-auto w-full max-w-360 overflow-hidden">
+      <div className="relative mx-auto w-full max-w-360 overflow-hidden rounded-2xl shadow-2xl border border-[#333333]">
         <div className="overflow-hidden" ref={emblaRef}>
           <div className="flex touch-pan-y">
-            {slides.map((slide) => {
+            {slides.map((slide, _index) => {
               const content = (
                 <div className="relative h-[55vh] min-h-100 flex-[0_0_100%] overflow-hidden">
                   <img
                     src={slide.imageUrl}
                     alt="Featured product"
                     draggable="false"
-                    className="h-full w-full select-none object-cover transition-transform duration-700"
+                    className="absolute inset-0 h-full w-full object-cover transition-all duration-1000"
                   />
 
-                  <div className="absolute inset-0 bg-black/40" />
+                  {/* Elegant black overlay with fine transparency */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/40 to-black/60" />
+
+                  {/* Subtle silver shimmer effect */}
+                  <div className="absolute -top-32 -left-32 w-64 h-64 bg-gradient-to-tr from-[#b8b8b8]/15 to-transparent rounded-full filter blur-3xl animate-pulse-subtle" />
 
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="max-w-2xl px-6 text-center">
-                      <span className="mb-5 block text-xs font-semibold uppercase tracking-[0.3em] text-white/60">
+                    <div className="max-w-2xl px-6 text-center animate-fade-in">
+                      <span className="mb-5 block text-xs font-semibold uppercase tracking-[0.3em] text-[#b8b8b8]/70">
                         Featured Collection
                       </span>
 
-                      <h1 className="text-4xl font-medium tracking-tight text-white md:text-6xl">
+                      <h1 className="text-4xl font-bold tracking-tight text-white md:text-6xl bg-gradient-to-r from-white to-[#b8b8b8] bg-clip-text text-transparent">
                         Discover Something New
                       </h1>
 
-                      <p className="mx-auto mt-5 max-w-lg text-sm leading-6 text-white/70 md:text-base">
+                      <p className="mx-auto mt-5 max-w-lg text-sm leading-6 text-[#c0c0c0] md:text-base">
                         Explore our curated selection and discover products made
                         for your everyday life.
                       </p>
 
                       {slide.linkTo && (
-                        <span className="mt-8 inline-block border border-white bg-white px-7 py-3 text-xs font-semibold uppercase tracking-wider text-black transition-colors hover:bg-transparent hover:text-white">
+                        <Link
+                          to={slide.linkTo}
+                          className="
+                            mt-8 inline-block px-7 py-3 text-xs font-semibold uppercase tracking-wider
+                            text-[#0a0a0a] bg-gradient-to-r from-[#b8b8b8] to-[#c8c8c8]
+                            rounded-lg shadow-md
+                            transition-all duration-fast
+                            hover:scale-105 hover:shadow-lg hover:shadow-[#b8b8b8]/30
+                          "
+                        >
                           Explore Collection
-                        </span>
+                        </Link>
                       )}
                     </div>
                   </div>
@@ -175,10 +188,18 @@ export default function BannerComp() {
           </div>
         </div>
 
+        {/* Neo-sleek navigation buttons */}
         <button
           type="button"
           onClick={goToPrev}
-          className="absolute left-6 top-1/2 z-20 -translate-y-1/2 cursor-pointer border border-white/20 bg-black/40 p-3 text-white/70 backdrop-blur-sm transition-all hover:border-white hover:bg-black/70 hover:text-white"
+          className="
+            absolute left-6 top-1/2 z-20 -translate-y-1/2
+            flex items-center justify-center w-12 h-12
+            rounded-full border border-[#555555] bg-black/60 text-[#c0c0c0]
+            backdrop-blur-sm transition-all duration-fast
+            hover:border-[#b8b8b8] hover:bg-[#b8b8b8]/20 hover:text-[#b8b8b8]
+            group
+          "
         >
           <ChevronLeft size={22} />
         </button>
@@ -186,22 +207,31 @@ export default function BannerComp() {
         <button
           type="button"
           onClick={goToNext}
-          className="absolute right-6 top-1/2 z-20 -translate-y-1/2 cursor-pointer border border-white/20 bg-black/40 p-3 text-white/70 backdrop-blur-sm transition-all hover:border-white hover:bg-black/70 hover:text-white"
+          className="
+            absolute right-6 top-1/2 z-20 -translate-y-1/2
+            flex items-center justify-center w-12 h-12
+            rounded-full border border-[#555555] bg-black/60 text-[#c0c0c0]
+            backdrop-blur-sm transition-all duration-fast
+            hover:border-[#b8b8b8] hover:bg-[#b8b8b8]/20 hover:text-[#b8b8b8]
+            group
+          "
         >
           <ChevronRight size={22} />
         </button>
 
+        {/* Elegant pagination indicators */}
         <div className="absolute bottom-6 left-1/2 z-20 flex -translate-x-1/2 items-center gap-3">
           {scrollSnaps.map((_, index) => (
             <button
               type="button"
               key={index}
               onClick={() => goTo(index)}
-              className={`h-0.5 cursor-pointer transition-all duration-300 ${
-                index === selectedSnap
-                  ? "w-10 bg-white"
-                  : "w-5 bg-white/40 hover:bg-white/70"
-              }`}
+              className={`
+                h-1 w-8 rounded-full
+                transition-all duration-fast cursor-pointer
+                bg-[#555555] hover:bg-[#b8b8b8]
+                ${index === selectedSnap ? "w-10 bg-[#b8b8b8]" : "w-4 opacity-50"}
+              `}
             />
           ))}
         </div>

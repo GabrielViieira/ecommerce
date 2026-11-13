@@ -158,27 +158,42 @@ export default function CheckoutPage() {
       <HeaderComp />
       <main className="min-h-screen bg-(--site-bg) text-(--text-main) p-4 md:p-8">
         <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-6">
-          {/* RESUMO */}
-          <section className="w-full lg:w-105 bg-(--card-bg) border border-(--border-color) rounded-2xl p-6 flex flex-col">
+          {/* RESUMO - Com efeitos de brilho sutil */}
+          <section className="w-full lg:w-105 bg-gradient-card border border-(--border-color) rounded-2xl p-6 flex flex-col shadow-xl animate-fade-in">
             <div className="flex items-center gap-3 pb-4 mb-5 border-b border-(--border-color)">
-              <div className="w-10 h-10 rounded-xl bg-(--surface-high) flex items-center justify-center"><ShoppingBag size={20} className="text-(--primary-accent)" /></div>
+              <div className="w-10 h-10 rounded-xl bg-(--surface-high) flex items-center justify-center animate-pulse-subtle">
+                <ShoppingBag size={20} className="text-(--primary-accent)" />
+              </div>
               <div>
-                <h2 className="font-bold">Resumo do Pedido</h2>
+                <h2 className="font-bold text-(--text-main) text-lg">Resumo do Pedido</h2>
                 <p className="text-xs text-(--text-muted)">{cart.items.length} item(ns)</p>
               </div>
             </div>
             <div className="flex-1 space-y-3 max-h-105 overflow-y-auto pr-1">
-              {cart.items.map((item) => {
+              {cart.items.map((item, idx) => {
                 const product = getProduct(item.productId);
                 if (!product) return null;
                 return (
-                  <div key={item._id} className="flex gap-3 items-center bg-(--surface-lowest) border border-(--border-color) p-3 rounded-xl">
-                    <div className="w-15 h-15 shrink-0 bg-(--surface) rounded-lg overflow-hidden">
-                      {product.image ? <img src={product.image} alt={product.title} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><ShoppingBag size={18} className="text-(--text-muted)" /></div>}
+                  <div
+                    key={item._id}
+                    className="flex gap-3 items-center bg-(--surface-lowest) border border-(--border-color) p-3 rounded-xl hover:bg-(--surface-hover) transition-all duration-300"
+                    style={{ animationDelay: `${idx * 50}ms` }}
+                  >
+                    <div className="w-15 h-15 shrink-0 bg-(--surface) rounded-lg overflow-hidden relative">
+                      {product.image ? (
+                        <img src={product.image} alt={product.title} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <ShoppingBag size={18} className="text-(--text-muted)" />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-(--primary-accent)/10 to-transparent" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className="text-sm font-medium truncate">{product.title}</h3>
-                      <p className="text-xs text-(--text-muted) mt-1">{item.quantity}x R$ {product.price.toFixed(2)}</p>
+                      <h3 className="text-sm font-medium text-(--text-main) truncate">{product.title}</h3>
+                      <p className="text-xs text-(--text-muted) mt-1">
+                        {item.quantity}x R$ {product.price.toFixed(2)}
+                      </p>
                     </div>
                     <span className="text-sm font-bold text-(--primary-accent)">R$ {(item.quantity * product.price).toFixed(2)}</span>
                   </div>
@@ -193,67 +208,162 @@ export default function CheckoutPage() {
             </div>
           </section>
 
-          {/* PAGAMENTO */}
-          <section className="flex-1 bg-(--card-bg) border border-(--border-color) rounded-2xl p-6 md:p-8">
-            <div className="flex gap-1 mb-8 bg-(--surface-lowest) border border-(--border-color) p-1 rounded-xl">
-              <button onClick={() => setMetodo("pix")} className={clsx("flex-1 flex items-center justify-center gap-2 py-3 rounded-lg font-semibold cursor-pointer transition-all", { "bg-(--primary-accent) text-(--primary-text)": metodo === "pix", "text-(--text-muted) hover:text-(--text-main)": metodo !== "pix" })}>
-                <QrCode size={18} /> PIX
-              </button>
-              <button onClick={() => setMetodo("cartao")} className={clsx("flex-1 flex items-center justify-center gap-2 py-3 rounded-lg font-semibold cursor-pointer transition-all", { "bg-(--primary-accent) text-(--primary-text)": metodo === "cartao", "text-(--text-muted) hover:text-(--text-main)": metodo !== "cartao" })}>
-                <CreditCard size={18} /> Cartão
+          {/* PAGAMENTO - Com animações elegantes */}
+          <section className="flex-1 bg-(--card-bg) border border-(--border-color) rounded-2xl p-6 md:p-8 shadow-xl relative overflow-hidden">
+            {/* Efeito de brilho sutil no fundo */}
+            <div className="absolute -top-24 -right-24 w-48 h-48 bg-gradient-to-bl from-(--primary-accent)/10 to-transparent rounded-full filter blur-3xl" />
+
+            <div className="relative">
+              <div className="flex gap-1 mb-8 bg-(--surface-lowest) border border-(--border-color) p-1 rounded-xl">
+                <button
+                  onClick={() => setMetodo("pix")}
+                  className={clsx(
+                    "flex-1 flex items-center justify-center gap-2 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-300",
+                    metodo === "pix"
+                      ? "bg-gradient-button text-(--primary-text) shadow-md"
+                      : "text-(--text-muted) hover:text-(--text-main) hover:bg-(--surface-hover)"
+                  )}
+                >
+                  <QrCode size={18} /> PIX
+                </button>
+                <button
+                  onClick={() => setMetodo("cartao")}
+                  className={clsx(
+                    "flex-1 flex items-center justify-center gap-2 py-3 rounded-lg font-semibold cursor-pointer transition-all duration-300",
+                    metodo === "cartao"
+                      ? "bg-gradient-button text-(--primary-text) shadow-md"
+                      : "text-(--text-muted) hover:text-(--text-main) hover:bg-(--surface-hover)"
+                  )}
+                >
+                  <CreditCard size={18} /> Cartão
+                </button>
+              </div>
+
+              {metodo === "pix" ? (
+                <div className="bg-(--surface-lowest) border border-(--border-color) p-6 rounded-xl animate-fade-in">
+                  <div className="mb-6">
+                    <label className="flex items-center gap-2 text-xs font-bold text-(--text-secondary) mb-2">
+                      <User size={14} /> CPF DO TITULAR
+                    </label>
+                    <input
+                      type="text"
+                      value={cpf}
+                      onChange={handleCpfChange}
+                      placeholder="000.000.000-00"
+                      maxLength={14}
+                      className="
+                        w-full bg-(--input-bg) border border-(--border-color)
+                        p-4 rounded-xl outline-none text-(--text-main)
+                        transition-all duration-300
+                        focus:border-(--primary-accent) focus:ring-2 focus:ring-(--glow-color)
+                      "
+                    />
+                  </div>
+                  <div className="p-6 bg-white rounded-xl text-center">
+                    <div className="inline-flex w-12 h-12 rounded-xl bg-(--surface) items-center justify-center mb-3">
+                      <QrCode className="text-(--primary-accent)" size={28} />
+                    </div>
+                    <p className="text-sm text-(--text-secondary)">
+                      O QR Code será gerado após confirmar o pagamento.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-4 animate-fade-in">
+                  <div className="col-span-2">
+                    <label className="text-xs font-bold text-(--text-secondary) mb-2 block">
+                      NOME COMPLETO
+                    </label>
+                    <input
+                      type="text"
+                      className="
+                        w-full bg-(--input-bg) border border-(--border-color)
+                        p-4 rounded-xl outline-none text-(--text-main)
+                        transition-all duration-300 focus:border-(--primary-accent)
+                      "
+                      placeholder="Digite seu nome completo"
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <label className="text-xs font-bold text-(--text-secondary) mb-2 block">
+                      NÚMERO DO CARTÃO
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="0000 0000 0000 0000"
+                      maxLength={19}
+                      className="
+                        w-full bg-(--input-bg) border border-(--border-color)
+                        p-4 rounded-xl outline-none text-(--text-main)
+                        transition-all duration-300 focus:border-(--primary-accent)
+                      "
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-(--text-secondary) mb-2 block">
+                      VALIDADE
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="MM/AA"
+                      maxLength={5}
+                      className="
+                        w-full bg-(--input-bg) border border-(--border-color)
+                        p-4 rounded-xl outline-none text-(--text-main)
+                        transition-all duration-300 focus:border-(--primary-accent)
+                      "
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-(--text-secondary) mb-2 block">
+                      CVV
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="123"
+                      maxLength={3}
+                      className="
+                        w-full bg-(--input-bg) border border-(--border-color)
+                        p-4 rounded-xl outline-none text-(--text-main)
+                        transition-all duration-300 focus:border-(--primary-accent)
+                      "
+                    />
+                  </div>
+                </div>
+              )}
+
+
+              {/* Botão de pagamento - Verde para concluído */}
+              <button
+                onClick={handleFinalizarClick}
+                disabled={processing || paymentComplete}
+                className={clsx(
+                  "w-full mt-8 py-4 rounded-xl font-bold cursor-pointer transition-all duration-300 flex items-center justify-center gap-2",
+                  paymentComplete
+                    ? "bg-green-500 text-white hover:bg-green-600 shadow-lg hover:shadow-green-500/30"
+                    : processing
+                      ? "bg-gray-400 text-gray-600 cursor-not-allowed"
+                      : "bg-gradient-button text-(--primary-text) hover:scale-[1.02] shadow-md hover:shadow-(--primary-accent)/30"
+                )}
+              >
+                {paymentComplete ? (
+                  <>
+                    <CheckCircle size={20} className="animate-bounce" />
+                    <span>PAGAMENTO REALIZADO</span>
+                  </>
+                ) : processing ? (
+                  <>
+                    <Loader2 size={20} className="animate-spin" />
+                    PROCESSANDO
+                  </>
+                ) : (
+                  <>
+                    <CreditCard size={20} />
+                    PROSSEGUIR
+                  </>
+                )}
               </button>
             </div>
-
-            {metodo === "pix" ? (
-              <div className="bg-(--surface-lowest) border border-(--border-color) p-6 rounded-xl">
-                <div className="mb-6">
-                  <label className="flex items-center gap-2 text-xs font-bold text-(--text-secondary) mb-2"><User size={14} /> CPF DO TITULAR</label>
-                  <input type="text" value={cpf} onChange={handleCpfChange} placeholder="000.000.000-00" maxLength={14} className="w-full bg-(--input-bg) border border-(--border-color) p-4 rounded-xl outline-none text-(--text-main) transition-colors focus:border-(--border-light)" />
-                </div>
-                <div className="p-6 bg-white rounded-xl text-center">
-                  <QrCode size={28} className="mx-auto mb-3 text-(--primary-accent)" />
-                  <p className="text-sm text-(--text-secondary)">O QR Code será gerado após confirmar o pagamento.</p>
-                </div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2">
-                  <label className="text-xs font-bold text-(--text-secondary) mb-2 block">NOME COMPLETO</label>
-                  <input type="text" className="w-full bg-(--input-bg) border border-(--border-color) p-4 rounded-xl outline-none text-(--text-main) focus:border-(--border-light)" />
-                </div>
-                <div className="col-span-2">
-                  <label className="text-xs font-bold text-(--text-secondary) mb-2 block">NÚMERO DO CARTÃO</label>
-                  <input type="text" placeholder="0000 0000 0000 0000" maxLength={19} className="w-full bg-(--input-bg) border border-(--border-color) p-4 rounded-xl outline-none text-(--text-main) focus:border-(--border-light)" />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-(--text-secondary) mb-2 block">VALIDADE</label>
-                  <input type="text" placeholder="MM/AA" maxLength={5} className="w-full bg-(--input-bg) border border-(--border-color) p-4 rounded-xl outline-none text-(--text-main) focus:border-(--border-light)" />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-(--text-secondary) mb-2 block">CVV</label>
-                  <input type="text" placeholder="123" maxLength={3} className="w-full bg-(--input-bg) border border-(--border-color) p-4 rounded-xl outline-none text-(--text-main) focus:border-(--border-light)" />
-                </div>
-              </div>
-            )}
-
-            <button onClick={handleFinalizarClick} disabled={processing || paymentComplete} className={clsx("w-full mt-8 py-4 rounded-xl font-bold cursor-pointer transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed", { "bg-green-500 text-white hover:bg-green-600": paymentComplete, "bg-gray-300 text-gray-600 cursor-not-allowed": processing, "bg-(--primary-accent) text-(--primary-text) hover:bg-(--primary-hover)": !processing && !paymentComplete })}>
-              {paymentComplete ? (
-                <>
-                  <CheckCircle size={20} />
-                  <span>PAGAMENTO REALIZADO</span>
-                </>
-              ) : processing ? (
-                <>
-                  <Loader2 size={20} className="animate-spin" />
-                  PROCESSANDO
-                </>
-              ) : (
-                <>
-                  <CreditCard size={20} />
-                  PROSSEGUIR
-                </>
-              )}
-            </button>
           </section>
         </div>
       </main>
@@ -269,7 +379,7 @@ export default function CheckoutPage() {
             <div className="p-4 bg-white rounded-xl mb-6"><QRCodeSVG value={pixPayload} size={180} level="H" /></div>
             <div className="space-y-2">
               <p className="text-[10px] uppercase tracking-widest text-(--text-muted) font-bold">Aguardando aprovação</p>
-              <p className={clsx("text-2xl font-black", { "text-(--error) animate-pulse": timer <= 3, "text-(--primary-accent)": timer > 3 })}>00:{timer < 10 ? `0${timer}` : timer}</p>
+              <p className={clsx("text-2xl font-black", { "text-(--error) animate-pulse": timer <= 3, "text-(--primary-accent)": timer > 3 })}>{`00:${timer < 10 ? `0${timer}` : timer}`}</p>
             </div>
           </div>
         </div>

@@ -13,55 +13,236 @@
 }
 
 :root {
-  /* Background */
-  --site-bg: #131313;
-  --background: #131313;
+  /* Background - Deep Space Black */
+  --site-bg: #0a0a0a;
+  --background: #0a0a0a;
 
-  /* Surfaces */
-  --card-bg: #1b1c1c;
-  --surface: #1f2020;
-  --surface-hover: #2a2a2a;
-  --surface-active: #353535;
+  /* Surfaces - Charcoal Gray with Silver Highlights */
+  --card-bg: #121212;
+  --surface: #1a1a1a;
+  --surface-hover: #242424;
+  --surface-active: #2a2a2a;
 
-  /* Containers */
-  --surface-lowest: #0e0e0e;
-  --surface-low: #1b1c1c;
-  --surface-high: #2a2a2a;
-  --surface-highest: #353535;
+  /* Containers - Deep Charcoal */
+  --surface-lowest: #080808;
+  --surface-low: #121212;
+  --surface-high: #1e1e1e;
+  --surface-highest: #242424;
 
-  /* Text */
-  --text-main: #e4e2e1;
-  --text-secondary: #c4c7c7;
-  --text-muted: #8e9192;
-  --text-disabled: #5f5e5e;
+  /* Text - Silver & Cool Grays */
+  --text-main: #f0f0f0;
+  --text-secondary: #c0c0c0;
+  --text-muted: #8a8a8a;
+  --text-disabled: #5a5a5a;
 
-  /* Primary */
-  --primary-accent: #c8c6c5;
-  --primary-text: #313030;
-  --primary-hover: #e5e2e1;
+  /* Primary - Chrome Silver with Blue Tint */
+  --primary-accent: #b8b8b8;
+  --primary-text: #0a0a0a;
+  --primary-hover: #e0e0e0;
+  --primary-gradient: linear-gradient(135deg, #b8b8b8 0%, #a0a0a0 100%);
 
-  /* Secondary */
-  --secondary: #c6c6c7;
-  --secondary-text: #2f3131;
+  /* Secondary - Platinum */
+  --secondary: #c5c5c0;
+  --secondary-text: #151515;
 
-  /* Borders */
-  --border-color: #444748;
-  --border-light: #8e9192;
+  /* Accent - Electric Silver */
+  --accent: #c0c0c0;
+  --accent-hover: #d0d0d0;
+
+  /* Borders - Refined Charcoal */
+  --border-color: #333333;
+  --border-light: #555555;
+  --border-gradient: linear-gradient(135deg, #b8b8b8 0%, #a8a8a8 100%);
 
   /* Inputs */
-  --input-bg: #131313;
-  --input-hover: #1f2020;
+  --input-bg: #121212;
+  --input-hover: #1a1a1a;
+
+  /* Shadows - Subtle Elegance */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.15);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.4);
+  --shadow-2xl: 0 25px 50px rgba(0, 0, 0, 0.5);
+
+  /* Glow Effects */
+  --glow-color: rgba(184, 184, 184, 0.2);
+  --glow-inner: inset 0 0 10px rgba(184, 184, 184, 0.1);
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, #b8b8b8 0%, #909090 100%);
+  --gradient-card: linear-gradient(155deg, #1a1a1a 0%, #121212 100%);
+  --gradient-button: linear-gradient(135deg, #b8b8b8 0%, #a0a0a0 100%);
+
+  /* Blur Effects */
+  --backdrop-blur: blur(12px);
 
   /* Error */
   --error: #ffb4ab;
   --error-bg: #93000a;
   --error-text: #ffdad6;
 
-  /* Success */
-  --success: #86efac;
-  --success-bg: #14532d;
+  /* Success - Modern Silver Green */
+  --success: #8fef7f;
+  --success-bg: #1e4b2e;
+  --success-border: #4a7c4a;
 
   /* Warning */
   --warning: #facc15;
   --warning-bg: #713f12;
+
+  /* Animation Timing - Tailwind compatible */
+  --duration-fast: 150ms;
+  --duration-slow: 350ms;
+}
+
+/* Elegant transitions */
+* {
+  transition-property: color, background-color, border-color, opacity, transform, box-shadow;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Glassmorphism backdrop filters */
+.backdrop-glass {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(184, 184, 184, 0.1);
+  backdrop-filter: var(--backdrop-blur);
+}
+
+/* Subtle shine effect on hover for buttons */
+.btn-shine:hover::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  transform: rotate(30deg);
+  transition: transform 0.5s;
+}
+
+/* Elegant fade-in animations */
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Slide up for cards */
+  .animate-slide-up {
+    animation: slideUp 0.4s ease-out forwards;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Pulse for interactive elements */
+  .animate-pulse-subtle {
+    animation: pulseSubtle 2s ease-in-out infinite;
+  }
+
+  @keyframes pulseSubtle {
+    0%, 100% {
+      box-shadow: 0 0 0 0 rgba(184, 184, 184, 0.1);
+    }
+    50% {
+      box-shadow: 0 0 0 8px rgba(184, 184, 184, 0);
+    }
+  }
+
+  /* Shimmer for buttons */
+  .animate-shimmer {
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+}
+
+/* Elegant button utilities */
+.btn-sleek {
+  @apply px-6 py-3 rounded-lg font-medium transition-all duration-200;
+  background: linear-gradient(135deg, #b8b8b8 0%, #a0a0a0 100%);
+  color: #0a0a0a;
+  border: none;
+  box-shadow: var(--shadow-md);
+}
+
+.btn-sleek:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-outline-sleek {
+  @apply px-6 py-3 rounded-lg font-medium transition-all duration-200;
+  background: transparent;
+  color: #b8b8b8;
+  border: 1px solid #b8b8b8;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-outline-sleek:hover {
+  background: linear-gradient(135deg, rgba(184, 184, 184, 0.1) 0%, rgba(184, 184, 184, 0.2) 100%);
+  transform: translateY(-2px);
+}
+
+/* Card utilities */
+.card-sleek {
+  @apply rounded-xl p-6 transition-all duration-200;
+  background: linear-gradient(155deg, #1a1a1a 0%, #121212 100%);
+  border: 1px solid #333333;
+  box-shadow: var(--shadow-md);
+}
+
+.card-sleek:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: #555555;
+}
+
+/* Input utilities */
+.input-sleek {
+  @apply w-full rounded-lg px-4 py-3 transition-all duration-150;
+  background: #0a0a0a;
+  border: 1px solid #333333;
+  color: #f0f0f0;
+}
+
+.input-sleek:focus {
+  outline: none;
+  border-color: #b8b8b8;
+  box-shadow: 0 0 0 3px rgba(184, 184, 184, 0.2);
+}
+
+/* Floating animation for decorative elements */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
 }

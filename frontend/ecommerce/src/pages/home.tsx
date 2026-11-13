@@ -11,17 +11,17 @@ export default function HomePage() {
   const canAccessMenu = user?.roles && ["admin", "seller"].includes(user.roles);
 
   return (
-    <div className="min-h-screen bg-[#131313] text-[#e4e2e1]">
+    <div className="min-h-screen bg-[#0a0a0a] text-[#f0f0f0]">
       <HeaderComp />
 
       <main className="min-h-screen">
         {canAccessMenu && <MenuFlutComp />}
 
-        <section className="border-b border-[#444748] bg-[#0e0e0e]">
+        <section className="border-b border-[#333333] bg-[#070707]">
           <BannerComp />
         </section>
 
-        <section className="mx-auto w-full max-w-360 border-x border-[#262626] bg-[#131313]">
+        <section className="mx-auto w-full max-w-360 border-x border-[#333333] bg-[#0a0a0a]">
           <div className="px-6 py-16 lg:px-12 xl:px-20">
             <TabsComp />
 

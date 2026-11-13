@@ -60,27 +60,27 @@ export default function HeaderComp() {
   }, [query]);
 
   return (
-    <header className="sticky top-0 z-100 w-full border-b border-[#262626] bg-[#131313]/95 text-[#e4e2e1] backdrop-blur-md">
+    <header className="sticky top-0 z-50 w-full border-b border-(--border-color) bg-(--site-bg)/95 text-(--text-main) backdrop-blur-md">
       <div className="mx-auto flex h-20 w-full max-w-360 items-center justify-between px-6 lg:px-12 xl:px-20">
         {/* Navigation */}
         <nav className="hidden flex-1 items-center gap-8 md:flex">
           <Link
             to="/home"
-            className="text-sm text-[#e4e2e1]/50 transition-colors duration-200 hover:text-[#e4e2e1]"
+            className="text-sm text-(--text-muted) transition-all duration-150 hover:text-(--text-main) hover:translate-x-1"
           >
             Home
           </Link>
 
           <Link
             to="/products"
-            className="text-sm text-[#e4e2e1]/50 transition-colors duration-200 hover:text-[#e4e2e1]"
+            className="text-sm text-(--text-muted) transition-all duration-150 hover:text-(--text-main) hover:translate-x-1"
           >
             Products
           </Link>
 
           <Link
             to="/history"
-            className="text-sm text-[#e4e2e1]/50 transition-colors duration-200 hover:text-[#e4e2e1]"
+            className="text-sm text-(--text-muted) transition-all duration-150 hover:text-(--text-main) hover:translate-x-1"
           >
             History
           </Link>
@@ -89,7 +89,7 @@ export default function HeaderComp() {
         {/* Logo */}
         <Link
           to="/home"
-          className="absolute left-1/2 -translate-x-1/2 text-xl font-semibold tracking-[0.3em] text-[#e4e2e1] transition-opacity hover:opacity-70"
+          className="absolute left-1/2 -translate-x-1/2 text-xl font-semibold tracking-[0.3em] text-(--text-main) transition-opacity hover:opacity-80"
         >
           SILENT
         </Link>
@@ -101,7 +101,7 @@ export default function HeaderComp() {
             <div className="group flex items-center">
               <Search
                 size={19}
-                className="pointer-events-none absolute left-0 text-[#e4e2e1]/50 transition-colors group-focus-within:text-[#e4e2e1]"
+                className="pointer-events-none absolute left-0 text-(--text-muted) transition-colors group-focus-within:text-(--text-main)"
               />
 
               <input
@@ -110,23 +110,23 @@ export default function HeaderComp() {
                 value={query}
                 onChange={handleInput}
                 className="
-                                    w-36
-                                    border-b
-                                    border-transparent
-                                    bg-transparent
-                                    py-2
-                                    pl-7
-                                    pr-2
-                                    text-sm
-                                    text-[#e4e2e1]
-                                    outline-none
-                                    placeholder:text-[#e4e2e1]/40
-                                    transition-all
-                                    duration-300
-                                    focus:w-60
-                                    focus:border-[#e4e2e1]/30
-                                    lg:w-44
-                                "
+                  w-36
+                  border-b
+                  border-transparent
+                  bg-transparent
+                  py-2
+                  pl-7
+                  pr-2
+                  text-sm
+                  text-(--text-main)
+                  outline-none
+                  placeholder:text-(--text-muted)
+                  transition-all
+                  duration-150
+                  focus:w-60
+                  focus:border-(--primary-accent)/30
+                  lg:w-44
+                "
               />
 
               {query && (
@@ -135,7 +135,7 @@ export default function HeaderComp() {
                     setQuery("");
                     setProduct([]);
                   }}
-                  className="text-[#e4e2e1]/40 transition-colors hover:text-[#e4e2e1]"
+                  className="text-(--text-muted) transition-all duration-150 hover:text-(--text-main) hover:rotate-90"
                 >
                   <X size={15} />
                 </button>
@@ -143,13 +143,13 @@ export default function HeaderComp() {
             </div>
 
             {(product.length > 0 || query.length > 2) && (
-              <div className="absolute right-0 top-full mt-4 w-80 overflow-hidden border border-[#262626] bg-[#1b1c1c]">
+              <div className="absolute right-0 top-full mt-4 w-80 overflow-hidden border border-(--border-color) bg-(--card-bg) card-sleek">
                 {product.length > 0 ? (
                   <ul>
                     {product.map((produto) => (
                       <li
                         key={produto._id}
-                        className="border-b border-[#262626] last:border-0"
+                        className="border-b border-(--border-color) last:border-0"
                       >
                         <Link
                           to={`/pagina-produto/${produto._id}`}
@@ -157,29 +157,29 @@ export default function HeaderComp() {
                             setQuery("");
                             setProduct([]);
                           }}
-                          className="flex items-center gap-4 p-4 transition-colors hover:bg-[#262626]"
+                          className="flex items-center gap-4 p-4 transition-all duration-150 hover:bg-(--surface-hover) hover:translate-x-2"
                         >
                           {produto.image ? (
                             <img
                               src={produto.image}
                               alt={produto.title}
-                              className="h-12 w-12 object-cover"
+                              className="h-12 w-12 object-cover rounded-lg"
                             />
                           ) : (
-                            <div className="flex h-12 w-12 items-center justify-center bg-[#262626]">
+                            <div className="flex h-12 w-12 items-center justify-center bg-(--surface) rounded-lg">
                               <Package
                                 size={18}
-                                className="text-[#e4e2e1]/40"
+                                className="text-(--primary-accent)/40"
                               />
                             </div>
                           )}
 
                           <div className="min-w-0">
-                            <span className="block truncate text-sm text-[#e4e2e1]">
+                            <span className="block truncate text-sm text-(--text-main)">
                               {produto.title}
                             </span>
 
-                            <span className="mt-1 block text-[10px] uppercase tracking-widest text-[#e4e2e1]/40">
+                            <span className="mt-1 block text-[10px] uppercase tracking-widest text-(--primary-accent)/40">
                               View product
                             </span>
                           </div>
@@ -189,7 +189,7 @@ export default function HeaderComp() {
                   </ul>
                 ) : (
                   <div className="p-6 text-center">
-                    <p className="text-sm text-[#e4e2e1]/50">
+                    <p className="text-sm text-(--text-secondary)">
                       No products found
                     </p>
                   </div>
@@ -204,18 +204,18 @@ export default function HeaderComp() {
             onMouseEnter={() => setIsOpen(true)}
             onMouseLeave={() => setIsOpen(false)}
           >
-            <button className="cursor-pointer text-[#e4e2e1]/60 transition-colors hover:text-[#e4e2e1] relative top-1">
+            <button className="cursor-pointer text-(--text-muted) transition-all duration-150 hover:text-(--text-main) hover:scale-110 relative top-1">
               <UserRound size={20} />
             </button>
 
             {isOpen && (
-              <div className="absolute left-1/2 -translate-x-1/2 top-2 mt-5 w-48 border border-[#262626] bg-[#1b1c1c] py-2">
-                <div className="border-b border-[#262626] px-4 py-3">
-                  <p className="truncate text-sm text-[#e4e2e1]">
+              <div className="absolute left-1/2 -translate-x-1/2 top-2 mt-5 w-48 border border-(--border-color) bg-(--card-bg) card-sleek animate-slide-up">
+                <div className="border-b border-(--border-color) px-4 py-3">
+                  <p className="truncate text-sm text-(--text-main)">
                     {user?.username || "Guest"}
                   </p>
 
-                  <p className="mt-1 text-[10px] uppercase tracking-widest text-[#e4e2e1]/40">
+                  <p className="mt-1 text-[10px] uppercase tracking-widest text-(--primary-accent)/40">
                     Account
                   </p>
                 </div>
@@ -224,30 +224,30 @@ export default function HeaderComp() {
                   <>
                     <Link
                       to={`/user/${user.username}`}
-                      className="block px-4 py-3 text-sm text-[#e4e2e1]/60 transition-colors hover:bg-[#262626] hover:text-[#e4e2e1]"
+                      className="block px-4 py-3 text-sm text-(--text-muted) transition-all duration-150 hover:bg-(--surface-hover) hover:text-(--text-main) hover:translate-x-2"
                     >
                       Profile
                     </Link>
 
                     <Link
                       to="/history"
-                      className="block px-4 py-3 text-sm text-[#e4e2e1]/60 transition-colors hover:bg-[#262626] hover:text-[#e4e2e1]"
+                      className="block px-4 py-3 text-sm text-(--text-muted) transition-all duration-150 hover:bg-(--surface-hover) hover:text-(--text-main) hover:translate-x-2"
                     >
                       History
                     </Link>
 
                     <Link
                       to="/tracking"
-                      className="block px-4 py-3 text-sm text-[#e4e2e1]/60 transition-colors hover:bg-[#262626] hover:text-[#e4e2e1]"
+                      className="block px-4 py-3 text-sm text-(--text-muted) transition-all duration-150 hover:bg-(--surface-hover) hover:text-(--text-main) hover:translate-x-2"
                     >
                       Orders
                     </Link>
 
-                    <div className="mx-4 border-t border-[#262626]" />
+                    <div className="mx-4 border-t border-(--border-color)" />
 
                     <button
                       onClick={handleLogout}
-                      className="w-full cursor-pointer px-4 py-3 text-left text-sm text-[#e4e2e1]/50 transition-colors hover:bg-[#262626] hover:text-red-400"
+                      className="w-full cursor-pointer px-4 py-3 text-left text-sm text-(--text-muted)/50 transition-all duration-150 hover:bg-(--surface-hover) hover:text-red-400 hover:translate-x-2"
                     >
                       Log out
                     </button>
@@ -256,14 +256,14 @@ export default function HeaderComp() {
                   <>
                     <Link
                       to="/"
-                      className="block px-4 py-3 text-sm text-[#e4e2e1]/60 transition-colors hover:bg-[#262626] hover:text-[#e4e2e1]"
+                      className="block px-4 py-3 text-sm text-(--text-muted) transition-all duration-150 hover:bg-(--surface-hover) hover:text-(--text-main) hover:translate-x-2"
                     >
                       Login
                     </Link>
 
                     <Link
                       to="/register"
-                      className="block px-4 py-3 text-sm text-[#e4e2e1]/60 transition-colors hover:bg-[#262626] hover:text-[#e4e2e1]"
+                      className="block px-4 py-3 text-sm text-(--text-muted) transition-all duration-150 hover:bg-(--surface-hover) hover:text-(--text-main) hover:translate-x-2"
                     >
                       Sign up
                     </Link>
@@ -274,14 +274,14 @@ export default function HeaderComp() {
           </div>
           <Link
             to="/favorites"
-            className="text-sm text-[#e4e2e1]/50 transition-colors duration-200 hover:text-[#e4e2e1]"
+            className="text-sm text-(--text-muted) transition-all duration-150 hover:text-(--text-main) hover:scale-110"
           >
             <HeartPlus size={20} />
           </Link>
           {/* Cart */}
           <Link
             to="/cart"
-            className="text-[#e4e2e1]/60 transition-colors hover:text-[#e4e2e1]"
+            className="text-(--text-muted) transition-all duration-150 hover:text-(--text-main) hover:scale-110"
           >
             <ShoppingCart size={20} />
           </Link>
