@@ -1,7 +1,7 @@
 import { Link } from "react-router"
 import { useAuth } from "../context/AuthContext"
-import { deleteUserService, updateUserService } from "../services/APIservice"
-import { useState } from "react"
+import { deleteUserService, updateUserService, getProductsService, getFavoritesService } from "../services/APIservice"
+import { useState, useEffect } from "react"
 import Toast from "../components/notify"
 
 import {
@@ -12,8 +12,10 @@ import {
     Pencil,
     Trash2,
     Shield,
-    LoaderCircle,
-    X
+    Loader2,
+    X,
+    Heart,
+    Package
 } from "lucide-react"
 
 export default function UserProfile() {
@@ -22,6 +24,10 @@ export default function UserProfile() {
     const [isOpen, setIsOpen] = useState(false)
     const [isUpdating, setIsUpdating] = useState(false)
     const [isDeleting, setIsDeleting] = useState(false)
+
+    // Favorites section state
+    const [favorites, setFavorites] = useState<any[]>([])
+    const [favoritesLoading, setFavoritesLoading] = useState(true)
 
     const [newUser, setNewUser] = useState({
         username: user?.username || "",
@@ -46,7 +52,7 @@ export default function UserProfile() {
             <div className="min-h-screen bg-(--site-bg) flex items-center justify-center">
                 <div className="flex flex-col items-center gap-4">
 
-                    <LoaderCircle
+                    <Loader2
                         size={28}
                         className="animate-spin text-(--text-main)"
                     />
@@ -160,6 +166,38 @@ export default function UserProfile() {
         } finally {
             setIsUpdating(false)
         }
+    }
+
+    // Load user's favorites
+    useEffect(() => {
+        const loadFavorites = async () => {
+            if (!user) return
+
+            try {
+                const favIds = await getFavoritesService()
+                if (favIds && favIds.length > 0) {
+                    const response = await getProductsService(100)
+                    const allProducts = Array.isArray(response) ? response : response.data || []
+                    const favProducts = allProducts.filter((p: any) => favIds.includes(p._id))
+                    setFavorites(favProducts)
+                } else {
+                    setFavorites([])
+                }
+            } catch (error) {
+                console.error("Error loading favorites:", error)
+            } finally {
+                setFavoritesLoading(false)
+            }
+        }
+
+        loadFavorites()
+    }, [user])
+
+    const formatPrice = (price: number) => {
+        return price.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL"
+        })
     }
 
     return (
@@ -281,224 +319,327 @@ export default function UserProfile() {
                     </aside>
 
 
-                    {/* PROFILE */}
+                    {/* PROFILE AND FAVORITES */}
 
-                    <section className="bg-(--card-bg) border border-(--border-color) rounded-2xl overflow-hidden">
+                    <div className="flex flex-col gap-6">
 
-                        <div className="p-6 md:p-8">
+                        {/* PROFILE */}
 
-                            <div className="flex items-center justify-between gap-4 mb-8">
+                        <section className="bg-(--card-bg) border border-(--border-color) rounded-2xl overflow-hidden">
 
-                                <div>
+                            <div className="p-6 md:p-8">
 
-                                    <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-(--text-muted)">
-                                        Personal information
-                                    </p>
+                                <div className="flex items-center justify-between gap-4 mb-8">
 
-                                    <h2 className="mt-2 text-xl font-medium text-(--text-main)">
-                                        Your profile
-                                    </h2>
+                                    <div>
+
+                                        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-(--text-muted)">
+                                            Personal information
+                                        </p>
+
+                                        <h2 className="mt-2 text-xl font-medium text-(--text-main)">
+                                            Your profile
+                                        </h2>
+
+                                    </div>
+
+
+                                    <button
+                                        onClick={openEditModal}
+                                        className="
+                                            w-10
+                                            h-10
+                                            flex
+                                            items-center
+                                            justify-center
+                                            border
+                                            border-(--border-color)
+                                            rounded-lg
+                                            text-(--text-secondary)
+                                            hover:bg-(--surface-hover)
+                                            hover:text-(--text-main)
+                                            transition-colors
+                                            cursor-pointer
+                                        "
+                                    >
+                                        <Pencil size={16} />
+                                    </button>
 
                                 </div>
 
 
-                                <button
-                                    onClick={openEditModal}
-                                    className="
-                                        w-10
-                                        h-10
-                                        flex
-                                        items-center
-                                        justify-center
-                                        border
-                                        border-(--border-color)
-                                        rounded-lg
-                                        text-(--text-secondary)
-                                        hover:bg-(--surface-hover)
-                                        hover:text-(--text-main)
-                                        transition-colors
-                                        cursor-pointer
-                                    "
-                                >
-                                    <Pencil size={16} />
-                                </button>
+                                <div className="grid md:grid-cols-2 gap-4">
+
+
+                                    {/* USERNAME */}
+
+                                    <div className="bg-(--surface) border border-(--border-color) rounded-xl p-5">
+
+                                        <div className="flex items-center gap-3 mb-4">
+
+                                            <div className="w-9 h-9 rounded-lg bg-(--surface-high) flex items-center justify-center text-(--text-secondary)">
+                                                <User size={17} />
+                                            </div>
+
+                                            <span className="text-[10px] uppercase tracking-[0.15em] font-semibold text-(--text-muted)">
+                                                Username
+                                            </span>
+
+                                        </div>
+
+                                        <p className="text-base font-medium text-(--text-main)">
+                                            {user.username}
+                                        </p>
+
+                                    </div>
+
+
+                                    {/* EMAIL */}
+
+                                    <div className="bg-(--surface) border border-(--border-color) rounded-xl p-5">
+
+                                        <div className="flex items-center gap-3 mb-4">
+
+                                            <div className="w-9 h-9 rounded-lg bg-(--surface-high) flex items-center justify-center text-(--text-secondary)">
+                                                <Mail size={17} />
+                                            </div>
+
+                                            <span className="text-[10px] uppercase tracking-[0.15em] font-semibold text-(--text-muted)">
+                                                Email
+                                            </span>
+
+                                        </div>
+
+                                        <p className="text-base font-medium text-(--text-main) truncate">
+                                            {user.email}
+                                        </p>
+
+                                    </div>
+
+
+                                    {/* BIRTH */}
+
+                                    <div className="bg-(--surface) border border-(--border-color) rounded-xl p-5">
+
+                                        <div className="flex items-center gap-3 mb-4">
+
+                                            <div className="w-9 h-9 rounded-lg bg-(--surface-high) flex items-center justify-center text-(--text-secondary)">
+                                                <Calendar size={17} />
+                                            </div>
+
+                                            <span className="text-[10px] uppercase tracking-[0.15em] font-semibold text-(--text-muted)">
+                                                Birth date
+                                            </span>
+
+                                        </div>
+
+                                        <p className="text-base font-medium text-(--text-main)">
+                                            {user.birth || "Not provided"}
+                                        </p>
+
+                                    </div>
+
+
+                                    {/* ROLE */}
+
+                                    <div className="bg-(--surface) border border-(--border-color) rounded-xl p-5">
+
+                                        <div className="flex items-center gap-3 mb-4">
+
+                                            <div className="w-9 h-9 rounded-lg bg-(--surface-high) flex items-center justify-center text-(--text-secondary)">
+                                                <Shield size={17} />
+                                            </div>
+
+                                            <span className="text-[10px] uppercase tracking-[0.15em] font-semibold text-(--text-muted)">
+                                                Role
+                                            </span>
+
+                                        </div>
+
+                                        <p className="text-base font-medium text-(--text-main) capitalize">
+                                            {user.roles}
+                                        </p>
+
+                                    </div>
+
+                                </div>
 
                             </div>
 
 
-                            <div className="grid md:grid-cols-2 gap-4">
+                            {/* DANGER ZONE */}
 
+                            <div className="border-t border-(--border-color) p-6 md:p-8">
 
-                                {/* USERNAME */}
+                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
 
-                                <div className="bg-(--surface) border border-(--border-color) rounded-xl p-5">
+                                    <div>
 
-                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="flex items-center gap-2 text-(--error)">
 
-                                        <div className="w-9 h-9 rounded-lg bg-(--surface-high) flex items-center justify-center text-(--text-secondary)">
-                                            <User size={17} />
+                                            <Trash2 size={16} />
+
+                                            <h3 className="text-sm font-medium">
+                                                Danger zone
+                                            </h3>
+
                                         </div>
 
-                                        <span className="text-[10px] uppercase tracking-[0.15em] font-semibold text-(--text-muted)">
-                                            Username
-                                        </span>
+                                        <p className="mt-2 text-xs text-(--text-muted) max-w-md">
+                                            Permanently delete your account and all associated information.
+                                        </p>
 
                                     </div>
 
-                                    <p className="text-base font-medium text-(--text-main)">
-                                        {user.username}
-                                    </p>
 
-                                </div>
+                                    <button
+                                        onClick={handleDelete}
+                                        disabled={isDeleting}
+                                        className="
+                                            shrink-0
+                                            flex
+                                            items-center
+                                            justify-center
+                                            gap-2
+                                            px-4
+                                            py-3
+                                            border
+                                            border-(--error-bg)
+                                            text-(--error)
+                                            rounded-lg
+                                            text-xs
+                                            font-semibold
+                                            hover:bg-(--error-bg)
+                                            hover:text-(--error-text)
+                                            disabled:opacity-50
+                                            transition-all
+                                            cursor-pointer
+                                        "
+                                    >
 
+                                        {isDeleting ? (
+                                            <>
+                                                <Loader2
+                                                    size={15}
+                                                    className="animate-spin"
+                                                />
 
-                                {/* EMAIL */}
+                                                Deleting...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Trash2 size={15} />
 
-                                <div className="bg-(--surface) border border-(--border-color) rounded-xl p-5">
+                                                Delete account
+                                            </>
+                                        )}
 
-                                    <div className="flex items-center gap-3 mb-4">
-
-                                        <div className="w-9 h-9 rounded-lg bg-(--surface-high) flex items-center justify-center text-(--text-secondary)">
-                                            <Mail size={17} />
-                                        </div>
-
-                                        <span className="text-[10px] uppercase tracking-[0.15em] font-semibold text-(--text-muted)">
-                                            Email
-                                        </span>
-
-                                    </div>
-
-                                    <p className="text-base font-medium text-(--text-main) truncate">
-                                        {user.email}
-                                    </p>
-
-                                </div>
-
-
-                                {/* BIRTH */}
-
-                                <div className="bg-(--surface) border border-(--border-color) rounded-xl p-5">
-
-                                    <div className="flex items-center gap-3 mb-4">
-
-                                        <div className="w-9 h-9 rounded-lg bg-(--surface-high) flex items-center justify-center text-(--text-secondary)">
-                                            <Calendar size={17} />
-                                        </div>
-
-                                        <span className="text-[10px] uppercase tracking-[0.15em] font-semibold text-(--text-muted)">
-                                            Birth date
-                                        </span>
-
-                                    </div>
-
-                                    <p className="text-base font-medium text-(--text-main)">
-                                        {user.birth || "Not provided"}
-                                    </p>
-
-                                </div>
-
-
-                                {/* ROLE */}
-
-                                <div className="bg-(--surface) border border-(--border-color) rounded-xl p-5">
-
-                                    <div className="flex items-center gap-3 mb-4">
-
-                                        <div className="w-9 h-9 rounded-lg bg-(--surface-high) flex items-center justify-center text-(--text-secondary)">
-                                            <Shield size={17} />
-                                        </div>
-
-                                        <span className="text-[10px] uppercase tracking-[0.15em] font-semibold text-(--text-muted)">
-                                            Role
-                                        </span>
-
-                                    </div>
-
-                                    <p className="text-base font-medium text-(--text-main) capitalize">
-                                        {user.roles}
-                                    </p>
+                                    </button>
 
                                 </div>
 
                             </div>
 
-                        </div>
+                        </section>
 
+                        {/* FAVORITES */}
 
-                        {/* DANGER ZONE */}
+                        <section className="bg-(--card-bg) border border-(--border-color) rounded-2xl overflow-hidden">
 
-                        <div className="border-t border-(--border-color) p-6 md:p-8">
+                            <div className="p-6 md:p-8">
 
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-5">
+                                <div className="flex items-center justify-between gap-4 mb-6">
 
-                                <div>
-
-                                    <div className="flex items-center gap-2 text-(--error)">
-
-                                        <Trash2 size={16} />
-
-                                        <h3 className="text-sm font-medium">
-                                            Danger zone
-                                        </h3>
-
+                                    <div>
+                                        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-(--text-muted)">
+                                            Your favorites
+                                        </p>
+                                        <h2 className="mt-2 text-xl font-medium text-(--text-main)">
+                                            Favorite Products
+                                        </h2>
                                     </div>
-
-                                    <p className="mt-2 text-xs text-(--text-muted) max-w-md">
-                                        Permanently delete your account and all associated information.
-                                    </p>
 
                                 </div>
 
+                                {favoritesLoading ? (
+                                    <div className="flex items-center justify-center py-8">
+                                        <Loader2
+                                            size={24}
+                                            className="animate-spin text-(--primary-accent)"
+                                        />
+                                    </div>
+                                ) : favorites.length > 0 ? (
+                                    <div className="overflow-y-auto max-h-80 pr-2">
+                                        <div className="grid grid-cols-1 gap-4">
+                                            {favorites.map((item) => {
+                                                const temDesconto = item.discount > 0
+                                                const precoFinal = temDesconto
+                                                    ? item.price * (1 - item.discount / 100)
+                                                    : item.price
 
-                                <button
-                                    onClick={handleDelete}
-                                    disabled={isDeleting}
-                                    className="
-                                        shrink-0
-                                        flex
-                                        items-center
-                                        justify-center
-                                        gap-2
-                                        px-4
-                                        py-3
-                                        border
-                                        border-(--error-bg)
-                                        text-(--error)
-                                        rounded-lg
-                                        text-xs
-                                        font-semibold
-                                        hover:bg-(--error-bg)
-                                        hover:text-(--error-text)
-                                        disabled:opacity-50
-                                        transition-all
-                                        cursor-pointer
-                                    "
-                                >
+                                                return (
+                                                    <Link
+                                                        key={item._id}
+                                                        to={`/pagina-produto/${item._id}`}
+                                                        className="flex items-center gap-3 p-3 bg-(--surface) border border-(--border-color) rounded-lg hover:bg-(--surface-hover) transition-colors"
+                                                    >
+                                                        {item.image ? (
+                                                            <img
+                                                                src={item.image}
+                                                                alt={item.title}
+                                                                className="w-12 h-12 object-cover rounded-md"
+                                                            />
+                                                        ) : (
+                                                            <div className="w-12 h-12 bg-(--surface-high) rounded-md flex items-center justify-center">
+                                                                <Package size={16} className="text-(--text-muted)" />
+                                                            </div>
+                                                        )}
 
-                                    {isDeleting ? (
-                                        <>
-                                            <LoaderCircle
-                                                size={15}
-                                                className="animate-spin"
-                                            />
+                                                        <div className="flex-1 min-w-0">
+                                                            <h3 className="font-medium text-(--text-main) text-sm line-clamp-1">
+                                                                {item.title}
+                                                            </h3>
+                                                            <div className="flex items-center gap-2 mt-1">
+                                                                {temDesconto ? (
+                                                                    <>
+                                                                        <span className="text-[10px] text-(--text-muted) line-through">
+                                                                            {formatPrice(item.price)}
+                                                                        </span>
+                                                                        <span className="text-sm font-semibold text-(--success)">
+                                                                            {formatPrice(precoFinal)}
+                                                                        </span>
+                                                                    </>
+                                                                ) : (
+                                                                    <span className="text-sm font-semibold text-(--primary-accent)">
+                                                                        {formatPrice(item.price)}
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                        </div>
 
-                                            Deleting...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Trash2 size={15} />
-
-                                            Delete account
-                                        </>
-                                    )}
-
-                                </button>
+                                                        <Heart
+                                                            size={16}
+                                                            className="fill-current text-red-500"
+                                                        />
+                                                    </Link>
+                                                )
+                                            })}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center py-8 text-center">
+                                        <Heart size={32} className="text-(--text-muted) mb-2" />
+                                        <p className="text-sm text-(--text-muted)">
+                                            Você ainda não tem produtos favoritos.
+                                        </p>
+                                    </div>
+                                )}
 
                             </div>
 
-                        </div>
+                        </section>
 
-                    </section>
+                    </div>
 
                 </div>
 
@@ -752,7 +893,7 @@ export default function UserProfile() {
 
                                     {isUpdating ? (
                                         <>
-                                            <LoaderCircle
+                                            <Loader2
                                                 size={15}
                                                 className="animate-spin"
                                             />

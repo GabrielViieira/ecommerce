@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, useRef } from "react"
 import {
     addProductsService,
     createProdService,
     deleteProdService,
     editProdService,
-    getProductsService
+    getProductsService,
+    getCategoriesService,
+    type Category
 } from "../services/APIservice"
 import { useAuth } from "../context/AuthContext"
 import Toast from "./notify"
@@ -16,8 +18,10 @@ import {
     ShoppingCart,
     X,
     Package,
-    Image as ImageIcon
+    Image as ImageIcon,
+    ChevronDown
 } from "lucide-react"
+import FavoriteButton from "./FavoriteButton"
 
 type Produto = {
     _id: string,
@@ -27,7 +31,8 @@ type Produto = {
     quantity: number,
     price: number,
     isFeatured: boolean,
-    discount: number
+    discount: number,
+    categoria: string[]
 }
 
 type ProdutosGridProps = {
@@ -36,6 +41,7 @@ type ProdutosGridProps = {
 
 export default function ProdutosGrid({ itemsPerPage }: ProdutosGridProps) {
     const [produtos, setProdutos] = useState<Produto[]>([])
+    const [categories, setCategories] = useState<Category[]>([])
 
     const [produto, setProduto] = useState<Produto>({
         _id: "",
@@ -45,12 +51,16 @@ export default function ProdutosGrid({ itemsPerPage }: ProdutosGridProps) {
         quantity: 0,
         price: 0,
         isFeatured: false,
-        discount: 0
+        discount: 0,
+        categoria: []
     })
 
     const [newProd, setNewProd] = useState<Produto>({} as Produto)
     const [isOpen, setIsOpen] = useState(false)
     const [isEdit, setIsEdit] = useState(false)
+    const [categoryFilter, setCategoryFilter] = useState<string>("all")
+    const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false)
+    const dropdownRef = useRef<HTMLDivElement>(null)
 
     const { user } = useAuth()
 
@@ -80,12 +90,50 @@ export default function ProdutosGrid({ itemsPerPage }: ProdutosGridProps) {
     }, [])
 
     useEffect(() => {
+        const loadCategories = async () => {
+            try {
+                const response = await getCategoriesService()
+                console.log("Categories loaded:", response)
+                setCategories(response || [])
+            } catch (error) {
+                console.error("Error loading categories:", error)
+                setCategories([])
+            }
+        }
+
+        loadCategories()
+    }, [])
+
+    useEffect(() => {
         if (isOpen || isEdit) {
             document.body.style.overflow = 'hidden'
         } else {
             document.body.style.overflow = 'unset'
         }
     }, [isOpen, isEdit])
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setIsCategoryDropdownOpen(false)
+            }
+        }
+
+        document.addEventListener("mousedown", handleClickOutside)
+        return () => document.removeEventListener("mousedown", handleClickOutside)
+    }, [])
+
+    // Filter products by category
+    const filteredProducts = React.useMemo(() => {
+        let result = [...produtos]
+
+        if (categoryFilter !== "all") {
+            result = result.filter((p) => p.categoria?.includes(categoryFilter))
+        }
+
+        return result
+    }, [produtos, categoryFilter])
 
     const handleAdd = async (_id: string) => {
         try {
@@ -138,11 +186,15 @@ export default function ProdutosGrid({ itemsPerPage }: ProdutosGridProps) {
             setIsOpen(false)
 
             setProduto({
+                _id: "",
                 title: "",
                 price: 0,
                 desc: "",
                 image: "",
-                quantity: 0
+                quantity: 0,
+                isFeatured: false,
+                discount: 0,
+                categoria: []
             } as Produto)
 
             setToast({
@@ -229,19 +281,73 @@ export default function ProdutosGrid({ itemsPerPage }: ProdutosGridProps) {
                         </h1>
                     </div>
 
-                    {["admin", "editor"].includes(user?.roles) && (
-                        <button
-                            onClick={() => {
-                                setIsOpen(true)
-                                setIsEdit(false)
-                            }}
-                            className="flex items-center justify-center gap-2 px-5 py-3 bg-white text-black rounded-lg text-sm font-semibold hover:bg-zinc-200 transition-colors cursor-pointer"
-                        >
-                            <Plus size={18} />
+                    <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+                        {/* Category Filter Dropdown */}
+                        <div className="relative" ref={dropdownRef}>
+                            <button
+                                type="button"
+                                onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+                                className="flex items-center gap-2 w-full sm:w-auto px-5 py-3 bg-[#181818] border border-[#303030] rounded-lg text-sm font-semibold text-white hover:bg-[#1f1f1f] transition-colors cursor-pointer"
+                                aria-expanded={isCategoryDropdownOpen}
+                                aria-haspopup="listbox"
+                            >
+                                <Package size={18} />
+                                <span>{categoryFilter === "all" ? "All Categories" : categoryFilter}</span>
+                                <ChevronDown
+                                    className={`w-4 h-4 text-zinc-500 transition-transform ${isCategoryDropdownOpen ? "rotate-180" : ""}`}
+                                />
+                            </button>
 
-                            Add Product
-                        </button>
-                    )}
+                            {isCategoryDropdownOpen && (
+                                <div className="absolute right-0 top-full z-50 mt-1 w-56 bg-[#151515] border border-[#303030] rounded-lg shadow-lg overflow-hidden animate-in fade-in-0 zoom-in-95 duration-150">
+                                    <button
+                                        onClick={() => {
+                                            setCategoryFilter("all")
+                                            setIsCategoryDropdownOpen(false)
+                                        }}
+                                        className={`w-full px-3 py-2 text-left text-sm transition-colors ${
+                                            categoryFilter === "all"
+                                                ? "bg-purple-600/20 text-purple-300"
+                                                : "text-zinc-400 hover:bg-[#1f1f1f] hover:text-white"
+                                        }`}
+                                    >
+                                        All Categories
+                                    </button>
+                                    <hr className="border-[#303030] my-1" />
+                                    {categories.map((cat) => (
+                                        <button
+                                            key={cat._id}
+                                            onClick={() => {
+                                                setCategoryFilter(cat.name)
+                                                setIsCategoryDropdownOpen(false)
+                                            }}
+                                            className={`w-full px-3 py-2 text-left text-sm transition-colors ${
+                                                categoryFilter === cat.name
+                                                    ? "bg-purple-600/20 text-purple-300"
+                                                    : "text-zinc-400 hover:bg-[#1f1f1f] hover:text-white"
+                                            }`}
+                                        >
+                                            {cat.name}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        {["admin", "editor"].includes(user?.roles) && (
+                            <button
+                                onClick={() => {
+                                    setIsOpen(true)
+                                    setIsEdit(false)
+                                }}
+                                className="flex items-center justify-center gap-2 w-full sm:w-auto px-5 py-3 bg-white text-black rounded-lg text-sm font-semibold hover:bg-zinc-200 transition-colors cursor-pointer"
+                            >
+                                <Plus size={18} />
+
+                                Add Product
+                            </button>
+                        )}
+                    </div>
 
                 </div>
 
@@ -355,6 +461,73 @@ export default function ProdutosGrid({ itemsPerPage }: ProdutosGridProps) {
                                         })
                                     }
                                 />
+
+                                <div>
+                                    <label className="text-xs text-zinc-500 mb-2 block">
+                                        Categories
+                                        <span className="text-zinc-600 ml-2">({categories.length} available)</span>
+                                    </label>
+                                    <div className="w-full bg-[#181818] border border-[#303030] rounded-lg p-3 min-h-[80px] focus-within:border-purple-500 transition-colors">
+                                        {categories.length === 0 ? (
+                                            <p className="text-sm text-zinc-600">No categories available</p>
+                                        ) : (
+                                            <>
+                                                <div className="flex flex-wrap gap-2 mb-2" role="group" aria-label="Selected categories">
+                                                    {produto.categoria.map((cat, i) => (
+                                                        <span
+                                                            key={i}
+                                                            className="inline-flex items-center gap-1.5 px-3 py-1 bg-purple-600/20 text-purple-300 text-xs rounded-full border border-purple-500/30"
+                                                        >
+                                                            {cat}
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setProduto({
+                                                                    ...produto,
+                                                                    categoria: produto.categoria.filter((_, idx) => idx !== i)
+                                                                })}
+                                                                className="hover:text-white transition-colors"
+                                                                aria-label={`Remove ${cat}`}
+                                                            >
+                                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                                    <line x1="18" y1="6" x2="6" y2="18" />
+                                                                    <line x1="6" y1="6" x2="18" y2="18" />
+                                                                </svg>
+                                                            </button>
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                                <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto">
+                                                    {categories.map(cat => {
+                                                        const isSelected = produto.categoria.includes(cat.name)
+                                                        return (
+                                                            <label
+                                                                key={cat._id}
+                                                                className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg border-2 text-sm cursor-pointer transition-all ${
+                                                                    isSelected
+                                                                        ? 'bg-purple-600/20 border-purple-500 text-purple-300'
+                                                                        : 'border-[#303030] text-zinc-400 hover:border-purple-500/50 hover:text-white'
+                                                                }`}
+                                                            >
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={isSelected}
+                                                                    onChange={() => setProduto({
+                                                                        ...produto,
+                                                                        categoria: isSelected
+                                                                            ? produto.categoria.filter(c => c !== cat.name)
+                                                                            : [...produto.categoria, cat.name]
+                                                                    })}
+                                                                    className="w-4 h-4 accent-purple-500 border-[#303030] bg-[#181818] rounded"
+                                                                />
+                                                                <span>{cat.name}</span>
+                                                            </label>
+                                                        )
+                                                    })}
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
 
 
                                 <div className="flex gap-3 mt-4">
@@ -530,6 +703,73 @@ export default function ProdutosGrid({ itemsPerPage }: ProdutosGridProps) {
 
                                 </div>
 
+                                <div>
+                                    <label className="text-sm text-zinc-400 mb-2 block">
+                                        Categories
+                                        <span className="text-zinc-600 ml-2">({categories.length} available)</span>
+                                    </label>
+                                    <div className="w-full bg-[#181818] border border-[#303030] rounded-lg p-3 min-h-[80px] focus-within:border-purple-500 transition-colors">
+                                        {categories.length === 0 ? (
+                                            <p className="text-sm text-zinc-600">No categories available</p>
+                                        ) : (
+                                            <>
+                                                <div className="flex flex-wrap gap-2 mb-2" role="group" aria-label="Selected categories">
+                                                    {newProd.categoria.map((cat, i) => (
+                                                        <span
+                                                            key={i}
+                                                            className="inline-flex items-center gap-1.5 px-3 py-1 bg-purple-600/20 text-purple-300 text-xs rounded-full border border-purple-500/30"
+                                                        >
+                                                            {cat}
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setNewProd({
+                                                                    ...newProd,
+                                                                    categoria: newProd.categoria.filter((_, idx) => idx !== i)
+                                                                })}
+                                                                className="hover:text-white transition-colors"
+                                                                aria-label={`Remove ${cat}`}
+                                                            >
+                                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                                    <line x1="18" y1="6" x2="6" y2="18" />
+                                                                    <line x1="6" y1="6" x2="18" y2="18" />
+                                                                </svg>
+                                                            </button>
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                                <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto">
+                                                    {categories.map(cat => {
+                                                        const isSelected = newProd.categoria.includes(cat.name)
+                                                        return (
+                                                            <label
+                                                                key={cat._id}
+                                                                className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg border-2 text-sm cursor-pointer transition-all ${
+                                                                    isSelected
+                                                                        ? 'bg-purple-600/20 border-purple-500 text-purple-300'
+                                                                        : 'border-[#303030] text-zinc-400 hover:border-purple-500/50 hover:text-white'
+                                                                }`}
+                                                            >
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={isSelected}
+                                                                    onChange={() => setNewProd({
+                                                                        ...newProd,
+                                                                        categoria: isSelected
+                                                                            ? newProd.categoria.filter(c => c !== cat.name)
+                                                                            : [...newProd.categoria, cat.name]
+                                                                    })}
+                                                                    className="w-4 h-4 accent-purple-500 border-[#303030] bg-[#181818] rounded"
+                                                                />
+                                                                <span>{cat.name}</span>
+                                                            </label>
+                                                        )
+                                                    })}
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+
 
                                 <div className="flex gap-3 mt-5 pt-5 border-t border-[#303030]">
 
@@ -561,7 +801,7 @@ export default function ProdutosGrid({ itemsPerPage }: ProdutosGridProps) {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
 
-                    {produtos
+                    {filteredProducts
                         .slice(0, itemsPerPage)
                         .map((produto) => {
 
@@ -699,18 +939,25 @@ export default function ProdutosGrid({ itemsPerPage }: ProdutosGridProps) {
 
                                         {/* BUTTON */}
 
-                                        <button
-                                            onClick={() =>
-                                                handleAdd(produto._id)
-                                            }
-                                            className="w-full mt-5 py-3 border border-[#383838] rounded-lg flex items-center justify-center gap-2 text-sm font-medium text-white hover:bg-white hover:text-black hover:border-white transition-all cursor-pointer"
-                                        >
+                                        <div className="flex gap-2 mt-5">
+                                            <button
+                                                onClick={() =>
+                                                    handleAdd(produto._id)
+                                                }
+                                                className="flex-1 py-3 border border-[#383838] rounded-lg flex items-center justify-center gap-2 text-sm font-medium text-white hover:bg-white hover:text-black hover:border-white transition-all cursor-pointer"
+                                            >
 
-                                            <ShoppingCart size={17} />
+                                                <ShoppingCart size={17} />
 
-                                            Add to Cart
+                                                Add to Cart
 
-                                        </button>
+                                            </button>
+
+                                            <FavoriteButton
+                                                productId={produto._id}
+                                                size={20}
+                                            />
+                                        </div>
 
 
                                         {/* ADMIN */}
@@ -764,7 +1011,7 @@ export default function ProdutosGrid({ itemsPerPage }: ProdutosGridProps) {
 
                 {/* EMPTY STATE */}
 
-                {produtos.length === 0 && (
+                {filteredProducts.length === 0 && (
 
                     <div className="py-20 flex flex-col items-center justify-center text-center border border-dashed border-[#333] rounded-xl">
 
@@ -780,9 +1027,9 @@ export default function ProdutosGrid({ itemsPerPage }: ProdutosGridProps) {
                         </h3>
 
                         <p className="text-sm text-zinc-500 mt-2">
-
-                            Products will appear here when available.
-
+                            {categoryFilter !== "all"
+                                ? `Nenhum produto encontrado na categoria "${categoryFilter}".`
+                                : "Products will appear here when available."}
                         </p>
 
                     </div>

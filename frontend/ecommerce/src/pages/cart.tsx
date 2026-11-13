@@ -16,7 +16,7 @@ import {
   Trash2,
   ArrowRight,
   PackageOpen,
-  LoaderCircle
+  Loader2
 } from "lucide-react"
 
 type Product = {
@@ -265,7 +265,7 @@ export default function CartPage() {
                 "
               >
                 {clearingCart ? (
-                  <LoaderCircle
+                  <Loader2
                     size={16}
                     className="animate-spin"
                   />
@@ -543,7 +543,7 @@ export default function CartPage() {
                               "
                             >
                               {isUpdating ? (
-                                <LoaderCircle
+                                <Loader2
                                   size={15}
                                   className="animate-spin mx-auto"
                                 />

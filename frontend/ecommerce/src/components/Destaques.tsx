@@ -3,6 +3,7 @@ import { addProductsService, getFeatures } from "../services/APIservice"
 import Toast from "./notify"
 import { Link } from "react-router"
 import { ShoppingCart, Star } from "lucide-react"
+import FavoriteButton from "./FavoriteButton"
 
 type Prod = {
     _id: string
@@ -218,39 +219,46 @@ export default function DestaquesComp({ itemsPerPage }: ProdutosGridProps) {
                                         </div>
 
 
-                                        <button
-                                            onClick={() => handleAdd(items._id)}
-                                            disabled={!temEstoque}
-                                            className={`
-                                            w-full mt-5 py-3
-                                            rounded-lg
-                                            flex items-center justify-center gap-2
-                                            text-sm font-medium
-                                            transition-all
-                                            ${
-                                                temEstoque
-                                                    ? `
-                                                    bg-(--accent)
-                                                    text-white
-                                                    hover:brightness-110
-                                                    cursor-pointer
-                                                    `
-                                                    : `
-                                                    bg-white/5
-                                                    text-white/40
-                                                    cursor-not-allowed
-                                                    `
-                                            }
-                                            `}
-                                        >
-                                            <ShoppingCart size={16} />
+                                        <div className="flex gap-2 mt-5">
+                                            <button
+                                                onClick={() => handleAdd(items._id)}
+                                                disabled={!temEstoque}
+                                                className={`
+                                                flex-1 py-3
+                                                rounded-lg
+                                                flex items-center justify-center gap-2
+                                                text-sm font-medium
+                                                transition-all
+                                                ${
+                                                    temEstoque
+                                                        ? `
+                                                        bg-(--accent)
+                                                        text-white
+                                                        hover:brightness-110
+                                                        cursor-pointer
+                                                        `
+                                                        : `
+                                                        bg-white/5
+                                                        text-white/40
+                                                        cursor-not-allowed
+                                                        `
+                                                }
+                                                `}
+                                            >
+                                                <ShoppingCart size={16} />
 
-                                            {temEstoque
-                                                ? "Add to Cart"
-                                                : "Out of Stock"
-                                            }
+                                                {temEstoque
+                                                    ? "Add to Cart"
+                                                    : "Out of Stock"
+                                                }
 
-                                        </button>
+                                            </button>
+
+                                            <FavoriteButton
+                                                productId={items._id}
+                                                size={20}
+                                            />
+                                        </div>
 
                                     </div>
 

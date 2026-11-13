@@ -7,7 +7,8 @@ export interface IProd extends Document {
   image?: string,
   price: number,
   isFeatured: boolean,
-  discount:number
+  discount:number,
+  categoria: [string]
 }
 
 const prodcSchema = new mongoose.Schema<IProd>({
@@ -38,8 +39,9 @@ const prodcSchema = new mongoose.Schema<IProd>({
     required: true
   },
   isFeatured: { type: Boolean, default: false },
-  discount: { type: Number, default: 0 }
-  
+  discount: { type: Number, default: 0 },
+  categoria: { type: [String], default: [] }
+
 },{ collection: 'products' })
 
 export const prodctModel = mongoose.model("Product", prodcSchema)

@@ -3,6 +3,12 @@ import type { UserUI } from "../model/userModel"
 import type { ProdUI } from "../model/prodModel"
 import type { SlideUI } from "../model/slideModel";
 
+export type Category = {
+  _id: string
+  name: string
+  description?: string
+}
+
 const API_URL = import.meta.env.VITE_API_URL
 
 export const api = axios.create({
@@ -79,10 +85,9 @@ export async function deleteUserService(id: string) {
 //Funçoes de produtos
 
 export async function getProductsService(limit: number) {
-  const response = await api.get(`/lista/prod`)
-  params: {
-    limit: limit
-  }
+  const response = await api.get(`/lista/prod`, {
+    params: { limit }
+  })
   return response.data
 }
 
@@ -178,6 +183,10 @@ export async function getHistory() {
 
 //slides functions
 
+export async function getCategoriesService(): Promise<Category[]> {
+  const response = await api.get("/categories")
+  return response.data
+}
 
 export const getSlidesService = async (showAll = false): Promise<SlideUI[]> => {
     // Caso queira trazer tudo do banco no painel, envia o parâmetro ?all=true
@@ -199,3 +208,29 @@ export const deleteSlideService = async (id: string): Promise<any> => {
     const response = await api.delete(`/slides/${id}`);
     return response.data;
 };
+
+// Favorites functions
+export async function getFavoritesService(): Promise<string[]> {
+    const response = await api.get("/favorites")
+    return response.data
+}
+
+export async function toggleFavoriteService(productId: string) {
+    const response = await api.post("/favorites/toggle", { productId })
+    return response.data
+}
+
+export async function addFavoriteService(productId: string) {
+    const response = await api.post("/favorites", { productId })
+    return response.data
+}
+
+export async function removeFavoriteService(productId: string) {
+    const response = await api.delete(`/favorites/${productId}`)
+    return response.data
+}
+
+export async function checkFavoriteService(productId: string): Promise<boolean> {
+    const response = await api.get(`/favorites/check/${productId}`)
+    return response.data.isFavorite
+}

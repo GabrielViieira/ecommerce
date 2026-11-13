@@ -14,8 +14,9 @@ import Dashboard from './pages/dashboard'
 import CheckoutPage from './pages/checkout';
 import HistoryPage from './pages/history';
 import OrderTracking from './pages/orderTracking';
-import ProductPage from './pages/ProdPage';
-import ProductsPage from './pages/Products';
+import ProductGrid from './pages/ProdGrid';
+import ProductsPage from './pages/ProductsPage';
+import FavoritesPage from './pages/FavoritesPage';
 
 
 const router = createBrowserRouter([
@@ -43,24 +44,28 @@ const router = createBrowserRouter([
     Component: Dashboard
   },
   {
-    path:"/payments/checkout",
+    path: "/payments/checkout",
     Component: CheckoutPage
   },
   {
-    path:"/history",
+    path: "/history",
     Component: HistoryPage
   },
   {
-    path:"/tracking",
+    path: "/tracking",
     Component: OrderTracking
   },
   {
-    path:"/pagina-produto/:id",
-    Component: ProductPage
+    path: "/pagina-produto/:id",
+    Component: ProductGrid
   },
   {
-    path:"/products",
+    path: "/products",
     Component: ProductsPage
+  },
+  {
+    path: "/favorites",
+    Component: FavoritesPage
   }
 ])
 

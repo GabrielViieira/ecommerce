@@ -4,6 +4,7 @@ import type { ProdUI } from "../model/prodModel"
 import Toast from "./notify"
 import { Link } from "react-router"
 import { ShoppingCart, Tag } from "lucide-react"
+import FavoriteButton from "./FavoriteButton"
 
 export default function PromocoesList() {
     const [promoProducts, setPromoProducts] = useState<ProdUI[]>([])
@@ -220,13 +221,14 @@ export default function PromocoesList() {
                                             </div>
 
 
+                                            <div className="flex gap-2 mt-5">
                                             <button
                                                 onClick={() =>
                                                     handleAdd(product._id!)
                                                 }
                                                 disabled={!temEstoque}
                                                 className={`
-                                                w-full mt-5 py-3
+                                                flex-1 py-3
                                                 rounded-lg
                                                 flex items-center
                                                 justify-center gap-2
@@ -258,6 +260,12 @@ export default function PromocoesList() {
                                                 }
 
                                             </button>
+
+                                            <FavoriteButton
+                                                productId={product._id!}
+                                                size={20}
+                                            />
+                                        </div>
 
                                         </div>
 

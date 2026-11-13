@@ -185,7 +185,7 @@ export default function Dashboard(props: Partial<ControlsType>) {
 
             const slides: Slide[] = Array.isArray(response)
                 ? response
-                : response.data || [];
+                : (response as any[] | any) || [];
 
             const newLinks = ["", "", ""];
             const newIds = ["", "", ""];
@@ -371,10 +371,7 @@ export default function Dashboard(props: Partial<ControlsType>) {
                             active: true
                         });
 
-                    updatedIds[i] =
-                        newSlide?._id ||
-                        newSlide?.data?._id ||
-                        "";
+                    updatedIds[i] = newSlide?._id || ""
                 }
             }
 

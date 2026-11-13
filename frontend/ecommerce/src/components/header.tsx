@@ -72,6 +72,13 @@ export default function HeaderComp() {
                     </Link>
 
                     <Link
+                        to="/favorites"
+                        className="text-sm text-[#e4e2e1]/50 transition-colors duration-200 hover:text-[#e4e2e1]"
+                    >
+                        Favoritos
+                    </Link>
+
+                    <Link
                         to="/products"
                         className="text-sm text-[#e4e2e1]/50 transition-colors duration-200 hover:text-[#e4e2e1]"
                     >
@@ -224,37 +231,55 @@ export default function HeaderComp() {
                                     </p>
                                 </div>
 
-                                {user && (
-                                    <Link
-                                        to={`/user/${user.username}`}
-                                        className="block px-4 py-3 text-sm text-[#e4e2e1]/60 transition-colors hover:bg-[#262626] hover:text-[#e4e2e1]"
-                                    >
-                                        Profile
-                                    </Link>
+                                {user ? (
+                                    <>
+                                        <Link
+                                            to={`/user/${user.username}`}
+                                            className="block px-4 py-3 text-sm text-[#e4e2e1]/60 transition-colors hover:bg-[#262626] hover:text-[#e4e2e1]"
+                                        >
+                                            Profile
+                                        </Link>
+
+                                        <Link
+                                            to="/history"
+                                            className="block px-4 py-3 text-sm text-[#e4e2e1]/60 transition-colors hover:bg-[#262626] hover:text-[#e4e2e1]"
+                                        >
+                                            History
+                                        </Link>
+
+                                        <Link
+                                            to="/tracking"
+                                            className="block px-4 py-3 text-sm text-[#e4e2e1]/60 transition-colors hover:bg-[#262626] hover:text-[#e4e2e1]"
+                                        >
+                                            Orders
+                                        </Link>
+
+                                        <div className="mx-4 border-t border-[#262626]" />
+
+                                        <button
+                                            onClick={handleLogout}
+                                            className="w-full cursor-pointer px-4 py-3 text-left text-sm text-[#e4e2e1]/50 transition-colors hover:bg-[#262626] hover:text-red-400"
+                                        >
+                                            Log out
+                                        </button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Link
+                                            to="/"
+                                            className="block px-4 py-3 text-sm text-[#e4e2e1]/60 transition-colors hover:bg-[#262626] hover:text-[#e4e2e1]"
+                                        >
+                                            Login
+                                        </Link>
+
+                                        <Link
+                                            to="/register"
+                                            className="block px-4 py-3 text-sm text-[#e4e2e1]/60 transition-colors hover:bg-[#262626] hover:text-[#e4e2e1]"
+                                        >
+                                            Sign up
+                                        </Link>
+                                    </>
                                 )}
-
-                                <Link
-                                    to="/history"
-                                    className="block px-4 py-3 text-sm text-[#e4e2e1]/60 transition-colors hover:bg-[#262626] hover:text-[#e4e2e1]"
-                                >
-                                    History
-                                </Link>
-
-                                <Link
-                                    to="/tracking"
-                                    className="block px-4 py-3 text-sm text-[#e4e2e1]/60 transition-colors hover:bg-[#262626] hover:text-[#e4e2e1]"
-                                >
-                                    Orders
-                                </Link>
-
-                                <div className="mx-4 border-t border-[#262626]" />
-
-                                <button
-                                    onClick={handleLogout}
-                                    className="w-full cursor-pointer px-4 py-3 text-left text-sm text-[#e4e2e1]/50 transition-colors hover:bg-[#262626] hover:text-red-400"
-                                >
-                                    Log out
-                                </button>
                             </div>
                         )}
                     </div>

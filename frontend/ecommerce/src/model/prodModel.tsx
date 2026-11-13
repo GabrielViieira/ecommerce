@@ -6,5 +6,6 @@ export interface ProdUI{
     quantity: number,
     price: number,
     isFeatured: boolean,
-    discount: number
+    discount: number,
+    categoria: string[]
 }

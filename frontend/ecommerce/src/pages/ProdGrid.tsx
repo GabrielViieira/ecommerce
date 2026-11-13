@@ -24,7 +24,7 @@ type FreightResult = {
     prazo: string;
 };
 
-export default function ProductPage() {
+export default function ProductGrid() {
     const { id } = useParams<{ id: string }>();
 
     const [product, setProduct] = useState<ProdUI | null>(null);
@@ -256,17 +256,15 @@ export default function ProductPage() {
                                             onClick={() =>
                                                 setActiveImage(image)
                                             }
-                                            className={`w-16 h-16 shrink-0 rounded-lg overflow-hidden border transition-all cursor-pointer ${
-                                                activeImage === image
+                                            className={`w-16 h-16 shrink-0 rounded-lg overflow-hidden border transition-all cursor-pointer ${activeImage === image
                                                     ? "border-(--primary-accent)"
                                                     : "border-(--border-color) hover:border-(--border-light)"
-                                            }`}
+                                                }`}
                                         >
                                             <img
                                                 src={image}
-                                                alt={`Imagem ${
-                                                    index + 1
-                                                }`}
+                                                alt={`Imagem ${index + 1
+                                                    }`}
                                                 className="w-full h-full object-cover"
                                             />
                                         </button>
@@ -377,11 +375,10 @@ export default function ProductPage() {
                                     </h2>
 
                                     <p
-                                        className={`text-sm leading-relaxed text-(--text-secondary) ${
-                                            !isDescExpanded
+                                        className={`text-sm leading-relaxed text-(--text-secondary) ${!isDescExpanded
                                                 ? "line-clamp-5"
                                                 : ""
-                                        }`}
+                                            }`}
                                     >
                                         {product.desc ||
                                             "Nenhuma descrição detalhada foi fornecida para este produto."}
@@ -488,11 +485,10 @@ export default function ProductPage() {
                                 <button
                                     onClick={handleAddToCart}
                                     disabled={!temEstoque}
-                                    className={`w-full py-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${
-                                        temEstoque
+                                    className={`w-full py-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${temEstoque
                                             ? "bg-(--primary-accent) text-(--primary-text) hover:bg-(--primary-hover) cursor-pointer active:scale-[0.99]"
                                             : "bg-(--surface-high) text-(--text-disabled) cursor-not-allowed"
-                                    }`}
+                                        }`}
                                 >
 
                                     <ShoppingCart size={19} />

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import useEmblaCarousel from "embla-carousel-react"
 import Autoplay from "embla-carousel-autoplay"
 import { ChevronLeft, ChevronRight } from "lucide-react"
@@ -7,9 +7,16 @@ import { Link } from "react-router"
 import type { SlideUI } from "../model/slideModel"
 
 export default function BannerComp() {
+    const autoplay = useRef(
+        Autoplay({
+            delay: 4000,
+            stopOnInteraction: false,
+        })
+    )
+
     const [emblaRef, emblaApi] = useEmblaCarousel(
         { loop: true },
-        [Autoplay({ delay: 4000 })]
+        [autoplay.current]
     )
 
     const [scrollSnaps, setScrollSnaps] = useState<number[]>([])
@@ -80,16 +87,31 @@ export default function BannerComp() {
     }, [])
 
     useEffect(() => {
-        if (!emblaApi || slides.length === 0) return
+        if (!emblaApi || loading) return
 
         setupSnaps(emblaApi)
+        setActiveSnap(emblaApi)
 
-        emblaApi.plugins().autoplay?.play()
+        const onReInit = () => {
+            setupSnaps(emblaApi)
+            setActiveSnap(emblaApi)
+        }
 
-        emblaApi.on("reInit", setupSnaps)
-        emblaApi.on("reInit", setActiveSnap)
+        emblaApi.on("reInit", onReInit)
         emblaApi.on("select", setActiveSnap)
-    }, [emblaApi, slides])
+
+        if (slides.length > 1) {
+            autoplay.current.play()
+        } else {
+            autoplay.current.stop()
+        }
+
+        return () => {
+            emblaApi.off("reInit", onReInit)
+            emblaApi.off("select", setActiveSnap)
+            autoplay.current.stop()
+        }
+    }, [emblaApi, slides.length, loading])
 
     if (loading) {
         return (
@@ -190,11 +212,10 @@ export default function BannerComp() {
                             type="button"
                             key={index}
                             onClick={() => goTo(index)}
-                            className={`h-0.5 cursor-pointer transition-all duration-300 ${
-                                index === selectedSnap
+                            className={`h-0.5 cursor-pointer transition-all duration-300 ${index === selectedSnap
                                     ? "w-10 bg-white"
                                     : "w-5 bg-white/40 hover:bg-white/70"
-                            }`}
+                                }`}
                         />
                     ))}
                 </div>

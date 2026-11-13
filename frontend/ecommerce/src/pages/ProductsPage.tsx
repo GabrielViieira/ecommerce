@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Search, Grid, List, Package, Loader2, X, Plus, Pencil, Trash2, ShoppingCart, Image as ImageIcon } from "lucide-react";
 import HeaderComp from "../components/header";
-import { getProductsService } from "../services/APIservice";
+import { getProductsService, getCategoriesService, type Category } from "../services/APIservice";
 import { useAuth } from "../context/AuthContext";
 import Toast from "../components/notify";
 import { Link } from "react-router";
+import FavoriteButton from "../components/FavoriteButton";
 
 type Produto = {
     _id: string;
@@ -15,6 +16,7 @@ type Produto = {
     price: number;
     isFeatured: boolean;
     discount: number;
+    categoria: string[];
 };
 
 type SortOption = "newest" | "oldest" | "price-asc" | "price-desc" | "name-asc" | "name-desc";
@@ -22,6 +24,7 @@ type SortOption = "newest" | "oldest" | "price-asc" | "price-desc" | "name-asc" 
 export default function ProductsPage() {
     const { user } = useAuth();
     const [produtos, setProdutos] = useState<Produto[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
     const [sortBy, setSortBy] = useState<SortOption>("newest");
@@ -39,7 +42,6 @@ export default function ProductsPage() {
         time: 3000,
     });
 
-    // Modal states for admin
     const [isOpen, setIsOpen] = useState(false);
     const [isEdit, setIsEdit] = useState(false);
     const [produto, setProduto] = useState<Produto>({
@@ -51,8 +53,12 @@ export default function ProductsPage() {
         price: 0,
         isFeatured: false,
         discount: 0,
+        categoria: [],
     });
     const [newProd, setNewProd] = useState<Produto>({} as Produto);
+    const [categoryFilter, setCategoryFilter] = useState<string>("all");
+    const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const loadProducts = async () => {
@@ -76,6 +82,32 @@ export default function ProductsPage() {
         loadProducts();
     }, []);
 
+    useEffect(() => {
+        const loadCategories = async () => {
+            try {
+                const response = await getCategoriesService();
+                setCategories(response || []);
+            } catch (error) {
+                console.error("Error loading categories:", error);
+                setCategories([]);
+            }
+        };
+
+        loadCategories();
+    }, []);
+
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setIsCategoryDropdownOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
+
     // Filter and sort products
     const filteredProducts = React.useMemo(() => {
         let result = [...produtos];
@@ -88,6 +120,11 @@ export default function ProductsPage() {
                     p.title.toLowerCase().includes(query) ||
                     p.desc.toLowerCase().includes(query)
             );
+        }
+
+        // Category filter
+        if (categoryFilter !== "all") {
+            result = result.filter((p) => p.categoria?.includes(categoryFilter));
         }
 
         // Sort
@@ -110,7 +147,7 @@ export default function ProductsPage() {
         });
 
         return result;
-    }, [produtos, searchQuery, sortBy]);
+    }, [produtos, searchQuery, sortBy, categoryFilter]);
 
     const handleAdd = async (_id: string) => {
         try {
@@ -180,6 +217,7 @@ export default function ProductsPage() {
                 quantity: 0,
                 isFeatured: false,
                 discount: 0,
+                categoria: [],
             });
 
             setToast({
@@ -317,6 +355,63 @@ export default function ProductsPage() {
                                     <option value="name-desc">Nome Z-A</option>
                                 </select>
 
+                                {/* Category Filter Dropdown */}
+                                <div className="relative" ref={dropdownRef}>
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
+                                        className="flex items-center gap-2 h-9 px-3 py-2 bg-(--surface-lowest) border border-(--border-color) rounded-lg text-xs text-(--text-main) outline-none focus:border-(--primary-accent) transition-colors cursor-pointer appearance-none"
+                                        aria-expanded={isCategoryDropdownOpen}
+                                        aria-haspopup="listbox"
+                                    >
+                                        <Package size={13} />
+                                        <span>{categoryFilter === "all" ? "Todas as categorias" : categoryFilter}</span>
+                                        <svg
+                                            className={`w-4 h-4 text-(--text-muted) transition-transform ${isCategoryDropdownOpen ? "rotate-180" : ""}`}
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </button>
+
+                                    {isCategoryDropdownOpen && (
+                                        <div className="absolute right-0 top-full z-50 mt-1 w-56 bg-(--card-bg) border border-(--border-color) rounded-lg shadow-lg overflow-hidden animate-in fade-in-0 zoom-in-95 duration-150">
+                                            <button
+                                                onClick={() => {
+                                                    setCategoryFilter("all");
+                                                    setIsCategoryDropdownOpen(false);
+                                                }}
+                                                className={`w-full px-3 py-2 text-left text-sm transition-colors ${
+                                                    categoryFilter === "all"
+                                                        ? "bg-(--primary-accent)/10 text-(--primary-accent)"
+                                                        : "text-(--text-secondary) hover:bg-(--surface-hover) hover:text-(--text-main)"
+                                                }`}
+                                            >
+                                                Todas as categorias
+                                            </button>
+                                            <hr className="border-(--border-color) my-1" />
+                                            {categories.map((cat) => (
+                                                <button
+                                                    key={cat._id}
+                                                    onClick={() => {
+                                                        setCategoryFilter(cat.name);
+                                                        setIsCategoryDropdownOpen(false);
+                                                    }}
+                                                    className={`w-full px-3 py-2 text-left text-sm transition-colors ${
+                                                        categoryFilter === cat.name
+                                                            ? "bg-(--primary-accent)/10 text-(--primary-accent)"
+                                                            : "text-(--text-secondary) hover:bg-(--surface-hover) hover:text-(--text-main)"
+                                                    }`}
+                                                >
+                                                    {cat.name}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
                                 <div className="flex items-center gap-1 border border-(--border-color) rounded-lg overflow-hidden h-9">
                                     <button
                                         onClick={() => setViewMode("grid")}
@@ -436,6 +531,7 @@ export default function ProductsPage() {
                         onSubmit={handleCreateProd}
                         inputStyle={inputStyle}
                         handlePriceChange={(e) => handlePriceChange(e, false)}
+                        categories={categories}
                     />
                 )}
 
@@ -450,6 +546,7 @@ export default function ProductsPage() {
                         inputStyle={inputStyle}
                         handlePriceChange={(e) => handlePriceChange(e, true)}
                         isEditing={true}
+                        categories={categories}
                     />
                 )}
 
@@ -568,18 +665,31 @@ function ProductCard({
                     )}
                 </div>
 
-                <button
-                    onClick={() => onAdd(produto._id)}
-                    disabled={!temEstoque}
-                    className={`w-full py-2 rounded-md flex items-center justify-center gap-1.5 text-xs font-medium transition-all ${
-                        temEstoque
-                            ? "bg-(--primary-accent) text-(--primary-text) hover:bg-(--primary-hover) cursor-pointer active:scale-[0.98]"
-                            : "bg-(--surface-high) text-(--text-disabled) cursor-not-allowed"
-                    }`}
-                >
-                    <ShoppingCart size={13} />
-                    {temEstoque ? "Adicionar" : "Esgotado"}
-                </button>
+                {produto.categoria && produto.categoria.length > 0 && (
+                    <span className="text-[10px] text-(--text-muted) ml-2">
+                        {produto.categoria[0]}
+                    </span>
+                )}
+
+                <div className="flex gap-2 w-full">
+                    <button
+                        onClick={() => onAdd(produto._id)}
+                        disabled={!temEstoque}
+                        className={`flex-1 py-2 rounded-md flex items-center justify-center gap-1.5 text-xs font-medium transition-all ${
+                            temEstoque
+                                ? "bg-(--primary-accent) text-(--primary-text) hover:bg-(--primary-hover) cursor-pointer active:scale-[0.98]"
+                                : "bg-(--surface-high) text-(--text-disabled) cursor-not-allowed"
+                        }`}
+                    >
+                        <ShoppingCart size={13} />
+                        {temEstoque ? "Adicionar" : "Esgotado"}
+                    </button>
+
+                    <FavoriteButton
+                        productId={produto._id}
+                        size={18}
+                    />
+                </div>
 
                 {isAdmin && (
                     <div className="flex gap-1.5 mt-1">
@@ -693,19 +803,32 @@ function ProductListItem({
                     )}
                 </div>
 
+                {produto.categoria && produto.categoria.length > 0 && (
+                    <span className="text-[10px] text-(--text-muted) ml-2">
+                        {produto.categoria[0]}
+                    </span>
+                )}
+
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full">
-                    <button
-                        onClick={() => onAdd(produto._id)}
-                        disabled={!temEstoque}
-                        className={`flex-1 py-2 rounded-md flex items-center justify-center gap-1.5 text-xs font-medium transition-all ${
-                            temEstoque
-                                ? "bg-(--primary-accent) text-(--primary-text) hover:bg-(--primary-hover) cursor-pointer active:scale-[0.98]"
-                                : "bg-(--surface-high) text-(--text-disabled) cursor-not-allowed"
-                        }`}
-                    >
-                        <ShoppingCart size={12} />
-                        {temEstoque ? "Adicionar" : "Esgotado"}
-                    </button>
+                    <div className="flex gap-2 flex-1">
+                        <button
+                            onClick={() => onAdd(produto._id)}
+                            disabled={!temEstoque}
+                            className={`flex-1 py-2 rounded-md flex items-center justify-center gap-1.5 text-xs font-medium transition-all ${
+                                temEstoque
+                                    ? "bg-(--primary-accent) text-(--primary-text) hover:bg-(--primary-hover) cursor-pointer active:scale-[0.98]"
+                                    : "bg-(--surface-high) text-(--text-disabled) cursor-not-allowed"
+                            }`}
+                        >
+                            <ShoppingCart size={12} />
+                            {temEstoque ? "Adicionar" : "Esgotado"}
+                        </button>
+
+                        <FavoriteButton
+                            productId={produto._id}
+                            size={16}
+                        />
+                    </div>
 
                     {isAdmin && (
                         <div className="flex gap-1.5">
@@ -741,6 +864,7 @@ interface ProductModalProps {
     onSubmit: (produto: Produto) => void;
     inputStyle: string;
     handlePriceChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    categories: Category[];
     isEditing?: boolean;
 }
 
@@ -753,6 +877,7 @@ function ProductModal({
     onSubmit,
     inputStyle,
     handlePriceChange,
+    categories,
     isEditing = false,
 }: ProductModalProps) {
     if (!isOpen) return null;
@@ -881,6 +1006,75 @@ function ProductModal({
                             />
                         </div>
                     </div>
+
+                    <div>
+                            <label className="text-[10px] text-(--text-muted) mb-1.5 block">
+                                Categorias
+                                <span className="text-(--text-muted) ml-2">({categories.length} disponíveis)</span>
+                            </label>
+                            <div className="w-full bg-(--surface-lowest) border border-(--border-color) rounded-lg p-3 min-h-[80px] focus-within:border-(--primary-accent) transition-colors">
+                                {categories.length === 0 ? (
+                                    <p className="text-sm text-(--text-muted)">Nenhuma categoria disponível</p>
+                                ) : (
+                                    <>
+                                        <div className="flex flex-wrap gap-2 mb-2" role="group" aria-label="Categorias selecionadas">
+                                            {produto.categoria.map((cat, i) => (
+                                                <span
+                                                    key={i}
+                                                    className="inline-flex items-center gap-1.5 px-3 py-1 bg-(--primary-accent)/20 text-(--primary-accent) text-xs rounded-full border border-(--primary-accent)/30"
+                                                >
+                                                    {cat}
+                                                    <button
+                                                        type="button"
+                                                        onClick={() =>
+                                                            setProduto({
+                                                                ...produto,
+                                                                categoria: produto.categoria.filter((_, idx) => idx !== i)
+                                                            })
+                                                        }
+                                                        className="hover:text-white transition-colors"
+                                                        aria-label={`Remover ${cat}`}
+                                                    >
+                                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                                            <line x1="18" y1="6" x2="6" y2="18" />
+                                                            <line x1="6" y1="6" x2="18" y2="18" />
+                                                        </svg>
+                                                    </button>
+                                                </span>
+                                            ))}
+                                        </div>
+                                        <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto">
+                                            {categories.map(cat => {
+                                                const isSelected = produto.categoria.includes(cat.name)
+                                                return (
+                                                    <label
+                                                        key={cat._id}
+                                                        className={`inline-flex items-center gap-2 px-3 py-2 rounded-lg border-2 text-sm cursor-pointer transition-all ${
+                                                            isSelected
+                                                                ? 'bg-(--primary-accent)/20 border-(--primary-accent) text-(--primary-accent)'
+                                                                : 'border-(--border-color) text-(--text-muted) hover:border-(--primary-accent)/50 hover:text-(--text-main)'
+                                                        }`}
+                                                    >
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={isSelected}
+                                                            onChange={() => setProduto({
+                                                                ...produto,
+                                                                categoria: isSelected
+                                                                    ? produto.categoria.filter(c => c !== cat.name)
+                                                                    : [...produto.categoria, cat.name]
+                                                            })}
+                                                            className="w-4 h-4 accent-(--primary-accent) border-(--border-color) bg-(--surface-lowest) rounded"
+                                                        />
+                                                        <span>{cat.name}</span>
+                                                    </label>
+                                                )
+                                            })}
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        </div>
 
                     <div className="flex gap-2 mt-3 pt-3 border-t border-(--border-color)">
                         <button
